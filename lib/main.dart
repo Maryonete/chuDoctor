@@ -81,6 +81,7 @@ class _MyAppState extends State<MyApp> {
                 icon: Icon(Icons.home),
                 label: 'Accueil'
             ),
+
             BottomNavigationBarItem(
                 icon: Icon(Icons.people),
                 label: 'Visites'
