@@ -1,11 +1,13 @@
-import 'package:doctor/pages/login_page.dart';
 import 'package:flutter/material.dart';
+import 'package:doctor/pages/login_page.dart';
+import 'package:doctor/pages/home_page.dart';
+import 'package:doctor/pages/patients_list_page.dart';
+import 'package:doctor/pages/prescription_page.dart';
+import 'package:doctor/pages/avis_page.dart';
 
 void main() {
   runApp(MaterialApp(home: MyApp()));
-  // runApp(const MyApp());
 }
-
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -15,98 +17,121 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-
-  // stocke num de la page ou on se trouve
+  // Stocke le numéro de la page où on se trouve
   int _currentIndex = 0;
 
-  // maj num de la page
-  setCurrentIndex(int index){
+  // Variable pour vérifier si l'utilisateur est connecté
+  bool _isLoggedIn = false;
+
+  // Fonction pour changer le numéro de la page
+  void setCurrentIndex(int index) {
     setState(() {
       _currentIndex = index;
     });
   }
 
+  // Fonction pour se connecter
+  void login() {
+    // Ici, vous pouvez implémenter la logique de connexion
+    // Une fois la connexion réussie, mettez _isLoggedIn à true
+    setState(() {
+      _isLoggedIn = true;
+    });
+  }
+
+  // Fonction pour se déconnecter
+  void logout() {
+    // Implémentez ici la logique de déconnexion
+    // Par exemple, supprimez le jeton d'authentification des préférences partagées
+    setState(() {
+      _isLoggedIn = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'SoigneMoi Mobile',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primaryColor: Colors.blue, // Couleur principale de l'application
-        colorScheme: ColorScheme.fromSwatch(
-          primarySwatch: Colors.blue, // Couleur principale
-        ).copyWith(
-          secondary: Colors.orange, // Couleur d'accentuation
+    // Vérifie si l'utilisateur est connecté
+    if (!_isLoggedIn) {
+      // Si l'utilisateur n'est pas connecté, affichez la page de connexion
+      return MaterialApp(
+        title: 'SoigneMoi Mobile',
+        debugShowCheckedModeBanner: false,
+        home: LoginPage(
+          onLogin: login,
         ),
-        scaffoldBackgroundColor: Colors.grey[200], // Couleur de fond pour tous les Scaffold
-        fontFamily: 'Poppins', // Police par défaut de l'application
-        textTheme: const TextTheme(
-          displayLarge: TextStyle(fontSize: 24, fontWeight: FontWeight.bold), // Style de texte par défaut
-          bodyLarge: TextStyle(fontSize: 16), // Style de texte pour le corps
+      );
+    } else {
+      // Si l'utilisateur est connecté, affichez le menu et les autres pages
+      return MaterialApp(
+        title: 'SoigneMoi Mobile',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          primaryColor: Colors.blue,
+          colorScheme: ColorScheme.fromSwatch(
+            primarySwatch: Colors.blue,
+          ).copyWith(
+            secondary: Colors.orange,
+          ),
+          scaffoldBackgroundColor: Colors.grey[200],
+          fontFamily: 'Poppins',
+          textTheme: const TextTheme(
+            displayLarge: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            bodyLarge: TextStyle(fontSize: 16),
+          ),
+          appBarTheme: const AppBarTheme(
+            color: Colors.blue,
+            elevation: 0,
+            iconTheme: IconThemeData(color: Colors.white),
+          ),
         ),
-        appBarTheme: const AppBarTheme(
-          color: Colors.blue, // Couleur de la barre d'applications
-          elevation: 0, // Élévation de la barre d'applications
-
-          iconTheme: IconThemeData(color: Colors.white), // Couleur des icônes dans la barre d'applications
-        ),
-      ),
-      home: LoginPage(),
-      /**
-
-      Scaffold(
-        appBar: AppBar(
-          title:<Widget>[
-            Text("Accueil",style: TextStyle(color: Colors.white)),
-            Text("Visites du jour",style: TextStyle(color: Colors.white)),
-            Text("Prescriptions",style: TextStyle(color: Colors.white)),
-            Text("Avis",style: TextStyle(color: Colors.white)),
-            ][_currentIndex]
-        ),
-
-
-
-
-        body: [
-          HomePage(),
-          PatientsListPage(),
-          PrescriptionPage(),
-          AvisPage(),
-        ][_currentIndex],
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: (index) => setCurrentIndex(index),
-          selectedItemColor: Colors.indigo,
-          unselectedItemColor: Colors.white,
-          type: BottomNavigationBarType.fixed,
-          iconSize: 32,
-          elevation: 10,
-          items: const [
-            BottomNavigationBarItem(
+        home: Scaffold(
+          appBar: AppBar(
+            title: Text(
+              ['Accueil', 'Visites du jour', 'Prescriptions', 'Avis'][_currentIndex],
+              style: TextStyle(color: Colors.white),
+            ),
+            actions: [
+              IconButton(
+                icon: Icon(Icons.logout),
+                onPressed: logout,
+              ),
+            ],
+          ),
+          body: [
+            HomePage(),
+            PatientsListPage(),
+            PrescriptionPage(),
+            AvisPage(),
+          ][_currentIndex],
+          bottomNavigationBar: BottomNavigationBar(
+            currentIndex: _currentIndex,
+            onTap: setCurrentIndex,
+            selectedItemColor: Colors.indigo,
+            unselectedItemColor: Colors.white,
+            type: BottomNavigationBarType.fixed,
+            iconSize: 32,
+            elevation: 10,
+            items: const [
+              BottomNavigationBarItem(
                 icon: Icon(Icons.home),
-                label: 'Accueil'
-            ),
-
-            BottomNavigationBarItem(
+                label: 'Accueil',
+              ),
+              BottomNavigationBarItem(
                 icon: Icon(Icons.people),
-                label: 'Visites'
-            ),
-            BottomNavigationBarItem(
+                label: 'Visites',
+              ),
+              BottomNavigationBarItem(
                 icon: Icon(Icons.local_hospital),
-                label: 'Prescription'
-            ),
-            BottomNavigationBarItem(
+                label: 'Prescription',
+              ),
+              BottomNavigationBarItem(
                 icon: Icon(Icons.description),
-                label: 'Avis'
-            )
-          ],
+                label: 'Avis',
+              ),
+            ],
+          ),
         ),
-
-      ),*/
-    );
+      );
+    }
   }
 }
-
-
-
-
