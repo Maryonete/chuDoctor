@@ -1,12 +1,9 @@
-import 'package:doctor/pages/avis_page.dart';
-import 'package:doctor/pages/home_page.dart';
 import 'package:doctor/pages/login_page.dart';
-import 'package:doctor/pages/patients_list_page.dart';
-import 'package:doctor/pages/prescription_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MaterialApp(home: MyApp()));
+  // runApp(const MyApp());
 }
 
 
@@ -32,6 +29,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'SoigneMoi Mobile',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primaryColor: Colors.blue, // Couleur principale de l'application
@@ -53,7 +51,10 @@ class _MyAppState extends State<MyApp> {
           iconTheme: IconThemeData(color: Colors.white), // Couleur des icônes dans la barre d'applications
         ),
       ),
-      home: Scaffold(
+      home: LoginPage(),
+      /**
+
+      Scaffold(
         appBar: AppBar(
           title:<Widget>[
             Text("Accueil",style: TextStyle(color: Colors.white)),
@@ -62,6 +63,10 @@ class _MyAppState extends State<MyApp> {
             Text("Avis",style: TextStyle(color: Colors.white)),
             ][_currentIndex]
         ),
+
+
+
+
         body: [
           HomePage(),
           PatientsListPage(),
@@ -97,7 +102,7 @@ class _MyAppState extends State<MyApp> {
           ],
         ),
 
-      ),
+      ),*/
     );
   }
 }

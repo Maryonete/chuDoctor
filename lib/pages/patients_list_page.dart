@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:http/http.dart' as http;
 
 // Page login
 class PatientsListPage extends StatefulWidget {
@@ -10,7 +10,9 @@ class PatientsListPage extends StatefulWidget {
 }
 class _PatientsListPageState extends State<PatientsListPage> {
 
-  final events = [
+
+  final events =
+  [
     {
       "title" : "Marie Chrismas",
       "heure" : "16H",
@@ -42,6 +44,7 @@ class _PatientsListPageState extends State<PatientsListPage> {
   Widget build(BuildContext context) {
     return  Center(
         child: ListView.builder(
+
           itemCount: events.length,
           itemBuilder: (context, index){
             final event = events[index];
@@ -62,4 +65,6 @@ class _PatientsListPageState extends State<PatientsListPage> {
         )
     );
   }
+
+
 }

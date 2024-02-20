@@ -6,12 +6,12 @@ import 'login_page.dart';
 
 // HomePage
 class HomePage extends StatelessWidget {
-  const HomePage({
-    super.key,
-  });
+  const HomePage({Key? key}) : super(key: key);
+
 
   @override
   Widget build(BuildContext context) {
+    print('home');
     return  Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
