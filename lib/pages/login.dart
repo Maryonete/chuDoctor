@@ -16,21 +16,20 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  TextEditingController emailController = TextEditingController()..text = 'aa@fe.fr';
+  TextEditingController emailController = TextEditingController()..text = 'medecin@studi.fr';
   TextEditingController passwordController = TextEditingController();
 
   login() async {
     var data = {
-      'email': emailController.text,
+      'username': emailController.text,
       'password': passwordController.text,
     };
 
-    var res = await Api().getAccessToken(data);
-    var body = json.decode(res.body);
+    var body = await Api().login(data,context);
 
     if (body['code'] == 401) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text(
             'Identifiants incorrects',
             style: TextStyle(color: Colors.white),
@@ -38,8 +37,8 @@ class _LoginPageState extends State<LoginPage> {
           backgroundColor: Colors.red,
         ),
       );
-
     }
+
 
     if (body['token'] != null) {
       SharedPreferences localStorage = await SharedPreferences.getInstance();
@@ -54,7 +53,7 @@ class _LoginPageState extends State<LoginPage> {
       backgroundColor: Colors.lightBlue[50],
       body: SingleChildScrollView( // Utilisation de SingleChildScrollView pour éviter le débordement
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(10),
           child: Form(
             key: _formKey,
             child: Column(
@@ -66,18 +65,17 @@ class _LoginPageState extends State<LoginPage> {
                   height: 130,
                   fit: BoxFit.scaleDown,
                 ),
-                const SizedBox(height: 10),
                 const Text(
-                  "SoigneMoi\nCHU",
+                  "Hospital SoigneMoi",
                   textAlign: TextAlign.center,
                   maxLines: 2,
                   style: TextStyle(
-                    fontSize: 42,
+                    fontSize: 38,
                     fontFamily: 'Poppins',
                     color: Color(0xFF002E6E),
                   ),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 10),
                 const Text(
                   "Espace médecins",
                   style: TextStyle(
@@ -86,9 +84,9 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
                 Container(
-                  margin: EdgeInsets.only(bottom: 20),
+                  margin: const EdgeInsets.only(bottom: 20),
                   child: TextFormField(
                     decoration: const InputDecoration(
                       labelText: 'Email',
@@ -108,7 +106,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 Container(
-                  margin: EdgeInsets.only(bottom: 20),
+                  margin: const EdgeInsets.only(bottom: 10),
                   child: TextFormField(
                     decoration: const InputDecoration(
                       labelText: 'Mot de passe',
@@ -123,6 +121,12 @@ class _LoginPageState extends State<LoginPage> {
                         return "Ce champ ne peut être vide";
                       }
                       return null;
+                    },
+                    onTap: () {
+                      setState(() {
+                        // Vider le champ de texte du mot de passe
+                        passwordController.clear();
+                      });
                     },
                   ),
                 ),
@@ -143,7 +147,7 @@ class _LoginPageState extends State<LoginPage> {
                       backgroundColor: Colors.blue[900],
                       foregroundColor: Colors.white,
                     ),
-                    child: Text("S'identifier", style: TextStyle(fontSize: 20)),
+                    child: const Text("S'identifier", style: TextStyle(fontSize: 20)),
                   ),
                 )
               ],
