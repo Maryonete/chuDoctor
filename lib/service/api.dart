@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/io_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'dart:io'; // Ajout de l'importation pour X509Certificate
 import 'package:doctor/utils/constants.dart';
 class Api {
@@ -24,12 +25,7 @@ class Api {
         body: jsonEncode(data),
         headers: {'Content-Type': 'application/json; charset=UTF-8'},
       );
-
-      print(response.statusCode);
-      print(jsonEncode(data));
-      print(response.headers['location']);
       try {
-        print(response.statusCode);
 
         if (response.statusCode == 200) {
           var jsonResponse = jsonDecode(response.body);
@@ -94,7 +90,7 @@ class Api {
           'Content-Type': 'application/json; charset=UTF-8',
         },
       );
-      print('setInfoDoctor reponse statut : ${response.statusCode}');
+
       try {
         if (response.statusCode == 200) {
           var jsonResponse = jsonDecode(response.body);
@@ -102,9 +98,6 @@ class Api {
           localStorage.setString('firstName', jsonResponse['firstName']);
           localStorage.setString('lastName', jsonResponse['lastName']);
           localStorage.setString('email', email);
-
-          var userId = localStorage.getString('user_id');
-          print('user_id : ${userId ?? 'null'}');
         }
       } catch (e) {
         print(e.toString());
@@ -123,49 +116,12 @@ class Api {
       rethrow;
     }
   }
-  // info patient
-  Future<Map<String, dynamic>?> getInfoPatient(int idPatient) async  {
-    print('[API] getInfoPatient : $idPatient');
 
-    final url = Uri.parse(urlApi + 'getInfoPatient/$idPatient');
-
-    // Créer un client HTTP avec désactivation de la vérification du certificat SSL
-    HttpClient httpClient = HttpClient()
-      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
-
-    try {
-      // Utiliser IOClient à la place de http.IOClient
-      var clientWithBadCert = IOClient(
-        httpClient,
-      );
-
-      var response = await clientWithBadCert.post(
-        url,
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-      );
-      try {
-        if (response.statusCode == 200) {
-// Décoder la réponse JSON en une carte dynamique de Dart
-          Map<String, dynamic> jsonData = jsonDecode(response.body);
-          // Retourner les données du patient
-
-          return jsonData;
-        }
-      } catch (e) {
-        print(e.toString());
-      }
-    } catch (e) {
-      print(e.toString());
-      rethrow;
-    }
-  }
 // Retourne la liste des medicaments
   Future<List<Map<String, dynamic>>?> getDrugs(BuildContext context) async {
     print('[API] getDrugs');
     final url = Uri.parse(urlApi + 'getDrugs');
-    print(url);
+
     // Créer un client HTTP avec désactivation de la vérification du certificat SSL
     HttpClient httpClient = HttpClient()
       ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
@@ -182,7 +138,7 @@ class Api {
           'Content-Type': 'application/json; charset=UTF-8',
         },
       );
-      print('réponse statut : ${response.statusCode}');
+
 
       if (response.statusCode == 200) {
         try {
@@ -225,7 +181,7 @@ class Api {
     }
 
     final url = Uri.parse(urlApi + 'getPatients/$userId');
-    print(url);
+
     // Créer un client HTTP avec désactivation de la vérification du certificat SSL
     HttpClient httpClient = HttpClient()
       ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
@@ -242,7 +198,7 @@ class Api {
           'Content-Type': 'application/json; charset=UTF-8',
         },
       );
-      print('réponse statut : ${response.statusCode}');
+
 
       if (response.statusCode == 200) {
         try {
@@ -252,7 +208,7 @@ class Api {
 
           // Parcourir chaque élément de la liste
           for (var item in jsonData) {
-            print(item);
+
             // Vérifier si toutes les clés nécessaires existent dans l'objet
             if (item.containsKey('id') ) {
               // Extraire les données du patient de l'élément actuel
@@ -287,67 +243,6 @@ class Api {
     } catch (e) {
       print(e.toString());
       rethrow;
-    }
-  }
-  // maj date de fin d'une prescription
-  Future<void> addPrescription() async {
-    final url = Uri.parse(urlApi + 'addPrescription');
-
-    HttpClient httpClient = HttpClient()
-      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
-
-    try {
-      var clientWithBadCert = IOClient(httpClient);
-
-      var response = await clientWithBadCert.post(
-        url,
-
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-      );
-
-      if (response.statusCode != 200) {
-        throw Exception('Failed to update prescription end date - status : ' + response.statusCode.toString());
-      }
-
-      // Si la mise à jour s'est déroulée avec succès, retourner true
-    } catch (e) {
-      // En cas d'erreur, retourner false
-      print('Error updating prescription date: $e');
-    }
-  }
-  // maj date de fin d'une prescription
-  Future<bool> setPrescriptionDateEnd(int prescriptionId, DateTime newDate) async {
-    final url = Uri.parse(urlApi + 'setPrescriptionDateEnd');
-
-    HttpClient httpClient = HttpClient()
-      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
-
-    try {
-      var clientWithBadCert = IOClient(httpClient);
-
-      var response = await clientWithBadCert.post(
-        url,
-        body: jsonEncode(<String, dynamic>{
-          'prescriptionId': prescriptionId,
-          'newEndDate': newDate.toIso8601String(),
-        }),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-      );
-
-      if (response.statusCode != 200) {
-        throw Exception('Failed to update prescription end date - status : ' + response.statusCode.toString());
-      }
-
-      // Si la mise à jour s'est déroulée avec succès, retourner true
-      return true;
-    } catch (e) {
-      // En cas d'erreur, retourner false
-      print('Error updating prescription date: $e');
-      return false;
     }
   }
 

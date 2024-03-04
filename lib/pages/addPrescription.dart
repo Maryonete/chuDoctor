@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:doctor/service/api.dart';
 import 'package:doctor/service/patient_api.dart';
 import 'package:doctor/utils/utils.dart';
-import 'package:intl/intl.dart'; // Importer le package intl
+import 'package:intl/intl.dart';
+import 'package:doctor/pages/prescription.dart';
+import 'package:doctor/service/prescription.dart';
+
 
 class AddPrescriptionPage extends StatefulWidget {
-  final int? patientId; // ID du patient
+  final int? patientId;
+
   const AddPrescriptionPage({Key? key, this.patientId}) : super(key: key);
 
   @override
@@ -17,9 +21,16 @@ class _AddPrescriptionPageState extends State<AddPrescriptionPage> {
   late TextEditingController _endDateController;
   late TextEditingController _medicationController;
   late TextEditingController _dosageController;
+
+  List<Map<String, dynamic>>? drugs;
+  String? selectedDrug;
+
   Map<String, dynamic>? patientInfo;
-  bool _startDateError = false; // Déclaration de l'indicateur d'erreur de la date de début
-  bool _endDateError = false; // Déclaration de l'indicateur d'erreur de la date de fin
+  bool _startDateError = false;
+  bool _endDateError = false;
+  bool _isLoading = false;
+
+  List<Map<String, dynamic>> medications = [];
 
   @override
   void initState() {
@@ -29,6 +40,10 @@ class _AddPrescriptionPageState extends State<AddPrescriptionPage> {
     _endDateController = TextEditingController();
     _medicationController = TextEditingController();
     _dosageController = TextEditingController();
+    fetchDrugs();
+    if (drugs != null) {
+      drugs!.sort((a, b) => a['name'].compareTo(b['name']));
+    }
   }
 
   @override
@@ -38,6 +53,17 @@ class _AddPrescriptionPageState extends State<AddPrescriptionPage> {
     _medicationController.dispose();
     _dosageController.dispose();
     super.dispose();
+  }
+
+  Future<void> fetchDrugs() async {
+    try {
+      List<Map<String, dynamic>>? result = await Api().getDrugs(context);
+      setState(() {
+        drugs = result ?? []; // Utiliser une liste vide si result est null
+      });
+    } catch (e) {
+      print('Error fetching drugs: $e');
+    }
   }
 
   Future<void> fetchPatientInfo() async {
@@ -53,103 +79,266 @@ class _AddPrescriptionPageState extends State<AddPrescriptionPage> {
     }
   }
 
+  void _editMedication(int index) {
+    String? selectedDrug = medications[index]['name'];
+    String dosage = medications[index]['dosage'];
+
+    if (selectedDrug != null && selectedDrug.isNotEmpty && dosage.isNotEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Modifier le médicament'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButtonFormField<String>(
+                value: selectedDrug,
+                onChanged: (String? value) {
+                  setState(() {
+                    medications[index]['name'] = value!;
+                  });
+                },
+                items: drugs != null
+                    ? drugs!.map((Map<String, dynamic> drug) {
+                  return DropdownMenuItem<String>(
+                    value: drug['name'],
+                    child: Text(drug['name']),
+                  );
+                }).toList()
+                    : [],
+                decoration: InputDecoration(labelText: 'Médicament'),
+              ),
+              TextField(
+                controller: TextEditingController(text: dosage),
+                onChanged: (value) => medications[index]['dosage'] = value,
+                decoration: InputDecoration(labelText: 'Dosage'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Annuler'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  Navigator.pop(context);
+                });
+              },
+              child: Text('Enregistrer'),
+            ),
+          ],
+        ),
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Erreur'),
+          content: Text('Veuillez renseigner le médicament et le dosage.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  void _removeMedication(int index) {
+    setState(() {
+      medications.removeAt(index);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue,
-        title: Row(
-          children: [
-            Text(
-              patientInfo != null
-                  ? 'Nouvelle prescription\n${patientInfo!["firstName"]} ${patientInfo!["lastName"]}'
-                  : 'Prescriptions du patient',
-              style: const TextStyle(color: Colors.white),
-            ),
-          ],
+        title: Text(
+          patientInfo != null
+              ? 'Nouvelle prescription\n${patientInfo!["firstName"]} ${patientInfo!["lastName"]}'
+              : 'Prescriptions du patient',
+          style: const TextStyle(color: Colors.white),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white),
+            icon: Icon(Icons.logout, color: Colors.white),
             onPressed: () {
               AuthUtils.logout(context);
             },
           ),
         ],
       ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              controller: _startDateController,
-              readOnly: true,
-              onTap: () {
-                _selectDate(context, _startDateController);
-              },
-              decoration: InputDecoration(
-                labelText: 'Date de début',
-                suffixIcon: Icon(Icons.calendar_today),
-                errorText: _startDateError ? 'Date invalide' : null, // Afficher un texte d'erreur si _startDateError est vrai
-                focusedErrorBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.red),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: _startDateController,
+                readOnly: true,
+                onTap: () {
+                  _selectDate(context, _startDateController);
+                },
+                decoration: InputDecoration(
+                  labelText: 'Date de début',
+                  suffixIcon: Icon(Icons.calendar_today),
+                  errorText: _startDateError ? 'Date invalide' : null,
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.red),
+                  ),
                 ),
               ),
-            ),
-            SizedBox(height: 20.0),
-            TextField(
-              controller: _endDateController,
-              readOnly: true,
-              onTap: () {
-                _selectDate(context, _endDateController);
-              },
-              decoration: InputDecoration(
-                labelText: 'Date de fin',
-                suffixIcon: Icon(Icons.calendar_today),
-                errorText: _endDateError ? 'Date invalide' : null, // Afficher un texte d'erreur si _endDateError est vrai
-                errorBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.red),
+              SizedBox(height: 20.0),
+              TextField(
+                controller: _endDateController,
+                readOnly: true,
+                onTap: () {
+                  _selectDate(context, _endDateController);
+                },
+                decoration: InputDecoration(
+                  labelText: 'Date de fin',
+                  suffixIcon: Icon(Icons.calendar_today),
+                  errorText: _endDateError ? 'Date invalide' : null,
+                  errorBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.red),
+                  ),
                 ),
               ),
-            ),
-            SizedBox(height: 20.0),
-            TextField(
-              controller: _medicationController,
-              decoration: InputDecoration(
-                labelText: 'Médicament',
+              SizedBox(height: 20.0),
+              if (medications.isNotEmpty)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Médicaments sélectionnés:',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 10),
+                    ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: medications.length,
+                      itemBuilder: (context, index) {
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: Text(medications[index]['name'] ?? ''),
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.edit),
+                              onPressed: () => _editMedication(index),
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.delete),
+                              onPressed: () => _removeMedication(index),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Utilisation de la liste triée dans le widget DropdownButtonFormField
+                  DropdownButtonFormField<String>(
+                    value: selectedDrug,
+                    onChanged: (String? value) {
+                      setState(() {
+                        selectedDrug = value;
+                      });
+                    },
+                    items: drugs != null
+                        ? (drugs!
+                      ..sort((a, b) => a['name'].compareTo(b['name']))) // Tri des médicaments par nom
+                        .map((Map<String, dynamic> drug) {
+                      return DropdownMenuItem<String>(
+                        value: drug['name'],
+                        child: Text(drug['name']),
+                      );
+                    }).toList()
+                        : [],
+                    decoration: InputDecoration(
+                      labelText: 'Médicament',
+                    ),
+                  ),
+                  SizedBox(height: 20.0),
+                  TextField(
+                    controller: _dosageController,
+                    decoration: InputDecoration(
+                      labelText: 'Dosage',
+                    ),
+                  ),
+                  SizedBox(height: 20.0),
+                  ElevatedButton(
+                    onPressed: _isLoading ? null : _addMedication,
+                    child: Text('Ajouter un médicament'),
+                  ),
+                ],
               ),
-            ),
-            SizedBox(height: 20.0),
-            TextField(
-              controller: _dosageController,
-              decoration: InputDecoration(
-                labelText: 'Dosage',
+              SizedBox(height: 20.0),
+              Center(
+                child: IgnorePointer(
+                  ignoring: _isLoading,
+                  child: Opacity(
+                    opacity: _isLoading ? 0.5 : 1.0,
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _addPrescription,
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+                        foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                      ),
+                      child: _isLoading
+                          ? CircularProgressIndicator() // Afficher CircularProgressIndicator si _isLoading est vrai
+                          : Text('Enregistrer la prescription'),
+                    ),
+                  ),
+                ),
               ),
-            ),
-            SizedBox(height: 20.0),
-            ElevatedButton(
-              onPressed: () {
-                _addPrescription();
-              },
-              child: Text('Ajouter la prescription'),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
+  void _addMedication() {
+    String selectedDrugName = selectedDrug ?? '';
+    String dosage = _dosageController.text;
+
+    if (selectedDrugName.isNotEmpty && dosage.isNotEmpty) {
+      setState(() {
+        medications.add({
+          'name': selectedDrugName,
+          'dosage': dosage,
+        });
+        selectedDrug = null;
+        _dosageController.clear();
+      });
+    }
+  }
+
   Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
     final DateTime currentDate = DateTime.now();
-    final DateTime startDate = _startDateController.text.isNotEmpty
-        ? DateFormat('dd-MM-yyyy').parse(_startDateController.text)
+    final DateTime startDate = controller.text.isNotEmpty
+        ? DateFormat('dd-MM-yyyy').parse(controller.text)
         : currentDate;
     final DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: startDate.add(Duration(days: 1)), // Commencer au jour suivant de la date de début
-      firstDate: startDate.add(Duration(days: 1)), // Commencer au jour suivant de la date de début
-      lastDate: DateTime.now().add(Duration(days: 365)),
+      initialDate: startDate.add(const Duration(days: 1)),
+      firstDate: startDate.add(const Duration(days: 1)),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
       locale: const Locale('fr'),
     );
 
@@ -160,51 +349,48 @@ class _AddPrescriptionPageState extends State<AddPrescriptionPage> {
       if (pickedDate.isBefore(currentDate)) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('La date ne peut pas être antérieure à la date actuelle.'),
-            duration: Duration(seconds: 2),
+            content: const Text('La date ne peut pas être antérieure à la date actuelle.'),
+            duration: const Duration(seconds: 2),
           ),
         );
-      } else if (_startDateController.text.isNotEmpty && pickedDate.isBefore(formatter.parse(_startDateController.text))) {
+      } else if (controller.text.isNotEmpty && pickedDate.isBefore(formatter.parse(controller.text))) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('La date de fin ne peut pas être antérieure à la date de début.'),
-            duration: Duration(seconds: 2),
+            content: const Text('La date de fin ne peut pas être antérieure à la date de début.'),
+            duration: const Duration(seconds: 2),
           ),
         );
       } else {
         setState(() {
           controller.text = formattedDate;
         });
+        // Valider automatiquement la sélection de la date en fermant la boîte de dialogue du calendrier
+        Navigator.pop(context);
       }
     }
   }
 
 
 
-
   Future<void> _addPrescription() async {
     String startDate = _startDateController.text;
     String endDate = _endDateController.text;
-    String medication = _medicationController.text;
-    String dosage = _dosageController.text;
-
-    // Vérifier si les champs de date sont vides
-    if (startDate.isEmpty || endDate.isEmpty) {
+// Appeler la fonction checkMedecinID pour obtenir l'ID du médecin
+    String? medecinId = await AuthUtils().checkMedecinID();
+    if (startDate.isEmpty || endDate.isEmpty || medications.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Veuillez sélectionner une date de début et une date de fin.'),
+        content: Text('Veuillez remplir toutes les informations nécessaires.'),
         duration: Duration(seconds: 2),
         backgroundColor: Colors.red,
       ));
       return;
     }
 
-    // Convertir les chaînes de date en objets DateTime
     final DateFormat formatter = DateFormat('dd-MM-yyyy');
     final DateTime currentDate = DateTime.now();
     final DateTime startDateTime = formatter.parse(startDate);
     final DateTime endDateTime = formatter.parse(endDate);
 
-    // Vérifier si la date de début est antérieure à la date du jour
     if (startDateTime.isBefore(currentDate)) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('La date de début ne peut pas être antérieure à la date actuelle.'),
@@ -214,7 +400,6 @@ class _AddPrescriptionPageState extends State<AddPrescriptionPage> {
       return;
     }
 
-    // Vérifier si la date de fin est antérieure à la date de début
     if (endDateTime.isBefore(startDateTime)) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('La date de fin ne peut pas être antérieure à la date de début.'),
@@ -224,23 +409,73 @@ class _AddPrescriptionPageState extends State<AddPrescriptionPage> {
       return;
     }
 
-    // Call API to add prescription
+    setState(() {
+      _isLoading = true; // Activer l'indicateur de chargement
+    });
+
+    // Convertir les chaînes de date en DateTime
+    DateTime startD = formatter.parse(startDate);
+    DateTime endD = formatter.parse(endDate);
+
+    // Construire les données de prescription
+    var prescriptionData = {
+      'startDate': startD.toIso8601String(),
+      'endDate': endD.toIso8601String(),
+      'patient_id': widget.patientId,
+      'medications': medications.map((medication) {
+        // Trouver l'ID du médicament en fonction de son nom
+        String? selectedDrugName = medication['name'];
+        String? drugId;
+        if (selectedDrugName != null && drugs != null) {
+          for (var drug in drugs!) {
+            if (drug['name'] == selectedDrugName) {
+              drugId = drug['id'].toString();;
+              break;
+            }
+          }
+        }
+        // Utiliser l'ID du médicament trouvé dans les données de prescription
+        return {
+          'drugId': drugId,
+          'dosage': medication['dosage'],
+        };
+      }).toList(),
+      'medecin_id' : medecinId
+    };
+
     try {
-      await Api().addPrescription();
-      // Prescription ajoutée avec succès, afficher un message de succès ou naviguer vers un autre écran
+      // Appeler la fonction addPrescription pour envoyer les données à l'API
+      await PrescriptionApi().addPrescription(prescriptionData);
+      // Réinitialiser les contrôleurs et vider la liste de médicaments après l'ajout réussi
+      setState(() {
+        _medicationController.clear();
+        _dosageController.clear();
+        medications.clear();
+        _isLoading = false; // Désactiver l'indicateur de chargement
+      });
+      // Naviguer vers PrescriptionPage après l'enregistrement réussi avec widget.patientId
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PrescriptionPage(patientId: widget.patientId),
+        ),
+      );
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Prescription ajoutée avec succès'),
+        content: Text('Prescription ajoutée avec succès.'),
         duration: Duration(seconds: 2),
+        backgroundColor: Colors.green,
       ));
     } catch (e) {
-      // Gérer l'erreur
+      // Gérer les erreurs de l'API
+      setState(() {
+        _isLoading = false; // Désactiver l'indicateur de chargement en cas d'erreur
+      });
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Une erreur s\'est produite lors de l\'ajout de la prescription: $e'),
+        content: Text('Une erreur s\'est produite lors de l\'ajout de la prescription.'),
         duration: Duration(seconds: 2),
         backgroundColor: Colors.red,
       ));
+      print('Error adding prescription: $e');
     }
   }
-
-
 }

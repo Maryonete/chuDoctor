@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:doctor/pages/home.dart';
 import 'package:flutter/material.dart';
 import 'package:doctor/service/api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -6,13 +7,13 @@ import 'package:email_validator/email_validator.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class LoginPage extends StatefulWidget {
-  final void Function() onLogin;
-
-  const LoginPage({super.key, required this.onLogin});
+  const LoginPage({Key? key}) : super(key: key);
 
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
+
+
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
@@ -25,7 +26,7 @@ class _LoginPageState extends State<LoginPage> {
       'password': passwordController.text,
     };
 
-    var body = await Api().login(data,context);
+    var body = await Api().login(data, context);
 
     if (body['code'] == 401) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -39,13 +40,14 @@ class _LoginPageState extends State<LoginPage> {
       );
     }
 
-
     if (body['token'] != null) {
       SharedPreferences localStorage = await SharedPreferences.getInstance();
       localStorage.setString('token', body['token']);
-      widget.onLogin();
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => HomePage()));
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -140,7 +142,7 @@ class _LoginPageState extends State<LoginPage> {
                           const SnackBar(content: Text("Envoi en cours ... ")),
                         );
                         FocusScope.of(context).requestFocus(FocusNode());
-                        login(); // Passer le BuildContext
+                        login();
                       }
                     },
                     style: ElevatedButton.styleFrom(

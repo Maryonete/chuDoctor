@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:doctor/utils/utils.dart';
-import 'package:doctor/service/api.dart';
 import 'package:doctor/pages/addPrescription.dart';
 import 'package:doctor/service/patient_api.dart';
+import 'package:doctor/service/prescription.dart';
 import 'package:intl/intl.dart';
 
 
 class PrescriptionPage extends StatefulWidget {
   final int? patientId; // ID du patient
+
   const PrescriptionPage({Key? key, this.patientId}) : super(key: key);
 
   @override
@@ -45,6 +46,7 @@ class _PrescriptionPageState extends State<PrescriptionPage> {
       }
     }
   }
+
 
   Future<void> fetchPrescriptions() async {
     try {
@@ -213,7 +215,7 @@ class _PrescriptionPageState extends State<PrescriptionPage> {
       // Mettez à jour la prescription avec la nouvelle date de fin
       try {
         // Appelez la fonction pour mettre à jour la prescription avec la nouvelle date de fin
-        await Api().setPrescriptionDateEnd(prescriptionId, selectedDate);
+        await PrescriptionApi().setPrescriptionDateEnd(prescriptionId, selectedDate);
         // Rafraîchissez la liste des prescriptions
         fetchPrescriptions();
       } catch (e) {
