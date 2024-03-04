@@ -1,9 +1,10 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:doctor/utils/utils.dart';
 import 'package:doctor/service/api.dart';
 import 'package:doctor/pages/addPrescription.dart';
 import 'package:doctor/service/patient_api.dart';
+import 'package:intl/intl.dart';
+
 
 class PrescriptionPage extends StatefulWidget {
   final int? patientId; // ID du patient
@@ -48,7 +49,7 @@ class _PrescriptionPageState extends State<PrescriptionPage> {
   Future<void> fetchPrescriptions() async {
     try {
       List<Map<String, dynamic>>? result =
-      await Api().getPrescriptionsPatient(context, widget.patientId);
+      await PatientApi.getPrescriptionsPatient(context, widget.patientId);
       setState(() {
         prescriptions = result;
       });
@@ -59,132 +60,126 @@ class _PrescriptionPageState extends State<PrescriptionPage> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      localizationsDelegates: [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ],
-      supportedLocales: [
-        const Locale('fr', ''),
-      ],
-      home: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.blue,
-          title: Row(
-            children: [
-              IconButton(
-                icon: Icon(Icons.arrow_back),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              Text(
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.blue,
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(
                 patientInfo != null
                     ? '${patientInfo!["firstName"]} ${patientInfo!["lastName"]}'
                     : 'Prescriptions du patient',
                 style: const TextStyle(color: Colors.white),
+                overflow: TextOverflow.ellipsis, // Gérer le dépassement de texte avec des points de suspension
               ),
-            ],
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.logout),
-              onPressed: () {
-                logout();
-              },
             ),
+
           ],
         ),
-        body: prescriptions != null
-            ? ListView.builder(
-          itemCount: prescriptions!.length,
-          itemBuilder: (context, index) {
-            var medications = prescriptions![index]['medications'];
-            var medicationsList = <Widget>[]; // Initialiser la liste de widgets
 
-            if (medications != null) {
-              medicationsList = medications.map<Widget>((med) {
-                return ListTile(
-                  title: Text(med['drug']),
-                  subtitle: Text(med['dosage']),
-                );
-              }).toList();
-            }
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: () {
+              AuthUtils.logout(context);
+            },
+          ),
+        ],
+      ),
+      body: prescriptions != null
+          ? ListView.builder(
+        itemCount: prescriptions!.length,
+        itemBuilder: (context, index) {
+          var medications = prescriptions![index]['medications'];
+          var medicationsList = <Widget>[]; // Initialise la liste de widgets
 
-            return Card(
-              margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-              elevation: 4,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Prescription ${prescriptions![index]['id']}',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.edit),
-                        onPressed: () {
-                          closeAccordion(); // Fermer l'accordéon actuellement ouvert
-                          _showEditPrescriptionDialog(context, prescriptions![index]['id'],
-                              prescriptions![index]['end']);
-                        },
-                      ),
-                    ],
-                  ),
-                  ListTile(
-                    title: Text('Début: ${_formatDate(prescriptions![index]['start'])}'),
-                    subtitle: Text('Fin: ${_formatDate(prescriptions![index]['end'])}'),
-                  ),
-                  ExpansionTile(
-                    leading: Icon(Icons.medical_services),
-                    title: Text('Médicaments et Dosages'),
-                    children: medicationsList,
-                    onExpansionChanged: (expanded) {
-                      if (expanded) {
-                        // Mettre à jour l'index de l'accordéon actuellement ouvert
-                        setState(() {
-                          expandedIndex = index;
-                        });
-                      } else {
-                        // Fermer l'accordéon lorsqu'il est rétracté
-                        closeAccordion();
-                      }
-                    },
-                    initiallyExpanded: expandedIndex == index, // Ouvrir l'accordéon si l'index correspond à l'index de l'accordéon actuellement ouvert
-                  ),
-                ],
-              ),
-            );
-          },
-        )
-            : Center(
-          child: CircularProgressIndicator(),
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => AddPrescriptionPage(patientId: widget.patientId)),
-            );
-          },
-          child: Icon(Icons.add),
-        ),
+          if (medications != null) {
+            medicationsList = medications.map<Widget>((med) {
+              return ListTile(
+                title: Text(med['drug']),
+                subtitle: Text(med['dosage']),
+              );
+            }).toList();
+          }
 
+          // Calculer le numéro de prescription
+          int prescriptionCount = prescriptions!.length - index;
+
+          return Card(
+            margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            elevation: 4,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Prescription $prescriptionCount',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.edit),
+                      onPressed: () {
+                        closeAccordion(); // Fermer l'accordéon actuellement ouvert
+                        _showEditPrescriptionDialog(context, prescriptions![index]['id'],
+                            prescriptions![index]['end']);
+                      },
+                    ),
+                  ],
+                ),
+                ListTile(
+                  title: Text('Début: ${_formatDate(prescriptions![index]['start'])}'),
+                  subtitle: Text('Fin: ${_formatDate(prescriptions![index]['end'])}'),
+                ),
+                ExpansionTile(
+                  leading: Icon(Icons.medical_services),
+                  title: Text('Médicaments et Dosages'),
+                  children: medicationsList,
+                  onExpansionChanged: (expanded) {
+                    if (expanded) {
+                      // Mettre à jour l'index de l'accordéon actuellement ouvert
+                      setState(() {
+                        expandedIndex = index;
+                      });
+                    } else {
+                      // Fermer l'accordéon lorsqu'il est rétracté
+                      closeAccordion();
+                    }
+                  },
+                  initiallyExpanded: expandedIndex == index, // Ouvrir l'accordéon si l'index correspond à l'index de l'accordéon actuellement ouvert
+                ),
+              ],
+            ),
+          );
+        },
+      )
+          : Center(
+        child: CircularProgressIndicator(),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AddPrescriptionPage(patientId: widget.patientId)),
+          );
+        },
+        backgroundColor: Colors.blue, // Couleur de fond du bouton flottant
+        foregroundColor: Colors.white, // Couleur de l'icône
+        child: Icon(Icons.add),
       ),
     );
   }
 
-  void logout() {
-    // Implémentez la logique de déconnexion ici
-    print('Logout');
-  }
+
 
   String _formatDate(String date) {
     DateTime dateTime = DateTime.parse(date);
-    return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
+
+    return DateFormat('dd-MM-yyyy').format(dateTime);
+
+    //return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
   }
 
   Future<void> _showEditPrescriptionDialog(BuildContext context, int prescriptionId, String currentEndDate) async {
@@ -195,7 +190,22 @@ class _PrescriptionPageState extends State<PrescriptionPage> {
       initialDate: selectedDate,
       firstDate: DateTime.now(),
       lastDate: DateTime(DateTime.now().year + 1),
-      locale: Locale('fr'), // Définissez la localisation sur français
+      locale: const Locale('fr'),
+      confirmText: 'Enregistrer',
+      helpText: 'Date de fin de la prescription',
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            // Modifiez le texte du bouton d'action principale (Valider)
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                textStyle: TextStyle(color: Colors.blue), // Couleur du texte du bouton
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
 
     if (newDate != null) {
@@ -212,8 +222,7 @@ class _PrescriptionPageState extends State<PrescriptionPage> {
       }
     }
   }
-}
 
-void main() {
-  runApp(PrescriptionPage());
+
+
 }

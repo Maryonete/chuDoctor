@@ -10,7 +10,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    print('home');
+    print('homePage');
     return  Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

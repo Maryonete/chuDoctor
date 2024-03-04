@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:doctor/service/api.dart';
 import 'package:doctor/service/patient_api.dart';
+import 'package:doctor/utils/utils.dart';
+import 'package:intl/intl.dart'; // Importer le package intl
 
 class AddPrescriptionPage extends StatefulWidget {
   final int? patientId; // ID du patient
@@ -16,6 +18,8 @@ class _AddPrescriptionPageState extends State<AddPrescriptionPage> {
   late TextEditingController _medicationController;
   late TextEditingController _dosageController;
   Map<String, dynamic>? patientInfo;
+  bool _startDateError = false; // Déclaration de l'indicateur d'erreur de la date de début
+  bool _endDateError = false; // Déclaration de l'indicateur d'erreur de la date de fin
 
   @override
   void initState() {
@@ -25,7 +29,6 @@ class _AddPrescriptionPageState extends State<AddPrescriptionPage> {
     _endDateController = TextEditingController();
     _medicationController = TextEditingController();
     _dosageController = TextEditingController();
-
   }
 
   @override
@@ -36,6 +39,7 @@ class _AddPrescriptionPageState extends State<AddPrescriptionPage> {
     _dosageController.dispose();
     super.dispose();
   }
+
   Future<void> fetchPatientInfo() async {
     if (widget.patientId != null) {
       try {
@@ -48,6 +52,7 @@ class _AddPrescriptionPageState extends State<AddPrescriptionPage> {
       }
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,15 +60,9 @@ class _AddPrescriptionPageState extends State<AddPrescriptionPage> {
         backgroundColor: Colors.blue,
         title: Row(
           children: [
-            IconButton(
-              icon: Icon(Icons.arrow_back),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
             Text(
               patientInfo != null
-                  ? '${patientInfo!["firstName"]} ${patientInfo!["lastName"]}'
+                  ? 'Nouvelle prescription\n${patientInfo!["firstName"]} ${patientInfo!["lastName"]}'
                   : 'Prescriptions du patient',
               style: const TextStyle(color: Colors.white),
             ),
@@ -71,9 +70,9 @@ class _AddPrescriptionPageState extends State<AddPrescriptionPage> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: () {
-              //logout();
+              AuthUtils.logout(context);
             },
           ),
         ],
@@ -92,6 +91,10 @@ class _AddPrescriptionPageState extends State<AddPrescriptionPage> {
               decoration: InputDecoration(
                 labelText: 'Date de début',
                 suffixIcon: Icon(Icons.calendar_today),
+                errorText: _startDateError ? 'Date invalide' : null, // Afficher un texte d'erreur si _startDateError est vrai
+                focusedErrorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red),
+                ),
               ),
             ),
             SizedBox(height: 20.0),
@@ -104,6 +107,10 @@ class _AddPrescriptionPageState extends State<AddPrescriptionPage> {
               decoration: InputDecoration(
                 labelText: 'Date de fin',
                 suffixIcon: Icon(Icons.calendar_today),
+                errorText: _endDateError ? 'Date invalide' : null, // Afficher un texte d'erreur si _endDateError est vrai
+                errorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red),
+                ),
               ),
             ),
             SizedBox(height: 20.0),
@@ -134,18 +141,46 @@ class _AddPrescriptionPageState extends State<AddPrescriptionPage> {
   }
 
   Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
+    final DateTime currentDate = DateTime.now();
+    final DateTime startDate = _startDateController.text.isNotEmpty
+        ? DateFormat('dd-MM-yyyy').parse(_startDateController.text)
+        : currentDate;
     final DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now().subtract(Duration(days: 365)),
+      initialDate: startDate.add(Duration(days: 1)), // Commencer au jour suivant de la date de début
+      firstDate: startDate.add(Duration(days: 1)), // Commencer au jour suivant de la date de début
       lastDate: DateTime.now().add(Duration(days: 365)),
+      locale: const Locale('fr'),
     );
+
     if (pickedDate != null) {
-      setState(() {
-        controller.text = pickedDate.toString();
-      });
+      final DateFormat formatter = DateFormat('dd-MM-yyyy');
+      final String formattedDate = formatter.format(pickedDate);
+
+      if (pickedDate.isBefore(currentDate)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('La date ne peut pas être antérieure à la date actuelle.'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      } else if (_startDateController.text.isNotEmpty && pickedDate.isBefore(formatter.parse(_startDateController.text))) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('La date de fin ne peut pas être antérieure à la date de début.'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      } else {
+        setState(() {
+          controller.text = formattedDate;
+        });
+      }
     }
   }
+
+
+
 
   Future<void> _addPrescription() async {
     String startDate = _startDateController.text;
@@ -153,20 +188,59 @@ class _AddPrescriptionPageState extends State<AddPrescriptionPage> {
     String medication = _medicationController.text;
     String dosage = _dosageController.text;
 
+    // Vérifier si les champs de date sont vides
+    if (startDate.isEmpty || endDate.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Veuillez sélectionner une date de début et une date de fin.'),
+        duration: Duration(seconds: 2),
+        backgroundColor: Colors.red,
+      ));
+      return;
+    }
+
+    // Convertir les chaînes de date en objets DateTime
+    final DateFormat formatter = DateFormat('dd-MM-yyyy');
+    final DateTime currentDate = DateTime.now();
+    final DateTime startDateTime = formatter.parse(startDate);
+    final DateTime endDateTime = formatter.parse(endDate);
+
+    // Vérifier si la date de début est antérieure à la date du jour
+    if (startDateTime.isBefore(currentDate)) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('La date de début ne peut pas être antérieure à la date actuelle.'),
+        duration: Duration(seconds: 2),
+        backgroundColor: Colors.red,
+      ));
+      return;
+    }
+
+    // Vérifier si la date de fin est antérieure à la date de début
+    if (endDateTime.isBefore(startDateTime)) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('La date de fin ne peut pas être antérieure à la date de début.'),
+        duration: Duration(seconds: 2),
+        backgroundColor: Colors.red,
+      ));
+      return;
+    }
+
     // Call API to add prescription
     try {
       await Api().addPrescription();
-      // Prescription added successfully, show a success message or navigate to another screen
+      // Prescription ajoutée avec succès, afficher un message de succès ou naviguer vers un autre écran
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Prescription ajoutée avec succès'),
         duration: Duration(seconds: 2),
       ));
     } catch (e) {
-      // Handle error
+      // Gérer l'erreur
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Une erreur s\'est produite lors de l\'ajout de la prescription: $e'),
         duration: Duration(seconds: 2),
+        backgroundColor: Colors.red,
       ));
     }
   }
+
+
 }

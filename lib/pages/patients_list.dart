@@ -17,6 +17,7 @@ class _PatientsListPageState extends State<PatientsListPage> {
   void initState() {
     super.initState();
     fetchData();
+    print('PatientsListPage');
   }
 
   Future<void> fetchData() async {
@@ -57,6 +58,7 @@ class _PatientsListPageState extends State<PatientsListPage> {
 
   @override
   Widget build(BuildContext context) {
+    print('PatientsListPage');
     return Scaffold(
 
       body: Center(
