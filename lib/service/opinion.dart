@@ -4,15 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:http/io_client.dart';
 import 'package:doctor/utils/constants.dart';
 
+class OpinionApi {
 
-class PrescriptionApi {
+  // Retourne la liste des avis sur un patient
+  static Future<List<Map<String, dynamic>>?> getOpinionsPatient(BuildContext context, Map<String, dynamic> opinionData) async {
+    print('[API] getOpinionsPatient');
 
-  // Retourne la liste des prescriptions d un patient
-  static Future<List<Map<String, dynamic>>?> getPrescriptionsPatient(BuildContext context,  Map<String, dynamic> prescriptionData) async {
-    print('[API] getPrescriptionsPatient');
+    final url = Uri.parse(urlApi + 'getOpinionsPatient');
 
-    final url = Uri.parse(urlApi + 'getPrescriptionPatients');
-    
     // Créer un client HTTP avec désactivation de la vérification du certificat SSL
     HttpClient httpClient = HttpClient()
       ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
@@ -25,7 +24,7 @@ class PrescriptionApi {
 
       var response = await clientWithBadCert.post(
         url,
-        body: jsonEncode(prescriptionData),
+        body: jsonEncode(opinionData),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -46,18 +45,18 @@ class PrescriptionApi {
               // Extraire les données du patient de l'élément actuel
               Map<String, dynamic> patientData = {
                 'id': item['id'],
-                'start': item['start'],
-                'end': item['end'],
-                'medications': item['medications'], // Ajouter la liste des médications à patientData
+                'title': item['title'],
+                'date': item['date'],
+                'description': item['description'],
               };
 
               // Ajouter les données du patient à la liste
               patientDataList.add(patientData);
             } else {
-              print('Les données de la prescription sont incomplètes  : $item');
+              print('Les données de l\'avis sont incomplets  : $item');
             }
           }
-          // Retourner la liste des prescriptions du patient
+          // Retourner la liste des avis sur le patient
           return patientDataList;
         } catch (e) {
           // Gérer les exceptions
@@ -74,10 +73,11 @@ class PrescriptionApi {
       rethrow;
     }
   }
-  // création  d'une prescription
-  Future<void> addPrescription(Map<String, dynamic> prescriptionData) async {
-    print("[API addPrescription]");
-    final url = Uri.parse(urlApi + 'addPrescription');
+  // ajout opinion sur un patient
+  static Future<void> addOpinion(BuildContext context, Map<String, dynamic> opinionData) async {
+    print("[API addOpinion]");
+    final url = Uri.parse(urlApi + 'addOpinion');
+    print(url);
     HttpClient httpClient = HttpClient()
       ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
 
@@ -86,12 +86,12 @@ class PrescriptionApi {
 
       var response = await clientWithBadCert.post(
         url,
-        body: jsonEncode(prescriptionData),
+        body: jsonEncode(opinionData),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
       );
-      print(jsonEncode(prescriptionData));
+      print(jsonEncode(opinionData));
 
       if (response.statusCode != 200) {
         throw Exception('Failed to update prescription end date - status : ' + response.statusCode.toString());
@@ -103,39 +103,5 @@ class PrescriptionApi {
       print('Error updating prescription date: $e');
     }
   }
-  // maj date de fin d'une prescription
-  Future<bool> setPrescriptionDateEnd(int prescriptionId, DateTime newDate) async {
-    final url = Uri.parse(urlApi + 'setPrescriptionDateEnd');
-
-    HttpClient httpClient = HttpClient()
-      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
-
-    try {
-      var clientWithBadCert = IOClient(httpClient);
-
-      var response = await clientWithBadCert.post(
-        url,
-        body: jsonEncode(<String, dynamic>{
-          'prescriptionId': prescriptionId,
-          'newEndDate': newDate.toIso8601String(),
-        }),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-      );
-
-      if (response.statusCode != 200) {
-        throw Exception('Failed to update prescription end date - status : ' + response.statusCode.toString());
-      }
-
-      // Si la mise à jour s'est déroulée avec succès, retourner true
-      return true;
-    } catch (e) {
-      // En cas d'erreur, retourner false
-      print('Error updating prescription date: $e');
-      return false;
-    }
-  }
-
 
 }

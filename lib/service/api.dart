@@ -5,6 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'dart:io'; // Ajout de l'importation pour X509Certificate
 import 'package:doctor/utils/constants.dart';
+import 'package:doctor/utils/utils.dart';
+
 class Api {
 
   Future<Map<String, dynamic>> login(data, context) async {
@@ -35,8 +37,8 @@ class Api {
           if (!decodedToken['roles'].contains('ROLE_MEDECIN')) {
             throw Exception('Cette page n\'est pas autorisée');
           }
-
-          setInfoDoctor(decodedToken['username'], context);
+          // enregistre info medecin dans localstorage
+          await setInfoDoctor(decodedToken['username'], context);
 
           return jsonResponse;
         }   else if (response.statusCode == 400) {
@@ -92,12 +94,15 @@ class Api {
       );
 
       try {
+
         if (response.statusCode == 200) {
           var jsonResponse = jsonDecode(response.body);
+
           localStorage.setString('user_id', jsonResponse['user_id'].toString());
           localStorage.setString('firstName', jsonResponse['firstName']);
           localStorage.setString('lastName', jsonResponse['lastName']);
           localStorage.setString('email', email);
+
         }
       } catch (e) {
         print(e.toString());
@@ -170,12 +175,12 @@ class Api {
       rethrow;
     }
   }
-
   // Retourne la liste des patients du medecin connecté
   Future<List<Map<String, dynamic>>?> getPatients(BuildContext context) async {
     print('[API] getPatients');
-    SharedPreferences localStorage = await SharedPreferences.getInstance();
-    String? userId = localStorage.getString('user_id');
+
+    String? userId = await AuthUtils().checkMedecinID();
+    print(userId);
     if (userId == null) {
       throw Exception('Erreur d\'authentification');
     }

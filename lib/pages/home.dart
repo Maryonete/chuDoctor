@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:doctor/service/api.dart';
-import 'package:doctor/pages/avis.dart';
+import 'package:doctor/pages/opinion.dart';
 import 'package:doctor/pages/prescription.dart';
 import 'package:doctor/utils/utils.dart';
 
@@ -153,7 +153,7 @@ class _HomePageState extends State<HomePage> {
                                     onPressed: () {
                                       Navigator.push(
                                         context,
-                                        MaterialPageRoute(builder: (context) => AvisPage()),
+                                        MaterialPageRoute(builder: (context) => OpinionPage(patientId: event['patient_id'])),
                                       );
                                     },
                                   ),

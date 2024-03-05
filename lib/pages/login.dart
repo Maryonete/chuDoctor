@@ -7,13 +7,14 @@ import 'package:email_validator/email_validator.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class LoginPage extends StatefulWidget {
+
   const LoginPage({Key? key}) : super(key: key);
+
+  static const route = '/login';
 
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
-
-
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();

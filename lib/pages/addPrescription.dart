@@ -328,7 +328,7 @@ class _AddPrescriptionPageState extends State<AddPrescriptionPage> {
       });
     }
   }
-
+  // selection date de debut et fin de la prescription
   Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
     final DateTime currentDate = DateTime.now();
     final DateTime startDate = controller.text.isNotEmpty
@@ -364,11 +364,10 @@ class _AddPrescriptionPageState extends State<AddPrescriptionPage> {
         setState(() {
           controller.text = formattedDate;
         });
-        // Valider automatiquement la sélection de la date en fermant la boîte de dialogue du calendrier
-        Navigator.pop(context);
       }
     }
   }
+
 
 
 

@@ -3,7 +3,6 @@ import 'package:doctor/utils/utils.dart';
 import 'package:doctor/pages/addPrescription.dart';
 import 'package:doctor/service/patient_api.dart';
 import 'package:doctor/service/prescription.dart';
-import 'package:intl/intl.dart';
 
 
 class PrescriptionPage extends StatefulWidget {
@@ -47,11 +46,15 @@ class _PrescriptionPageState extends State<PrescriptionPage> {
     }
   }
 
-
+  // liste prescriptions du patients
   Future<void> fetchPrescriptions() async {
     try {
+      Map<String, dynamic> prescriptionData = {
+        'patient_id': widget.patientId,
+        'medecin_id': await AuthUtils().checkMedecinID(),
+      };
       List<Map<String, dynamic>>? result =
-      await PatientApi.getPrescriptionsPatient(context, widget.patientId);
+      await PrescriptionApi.getPrescriptionsPatient(context, prescriptionData);
       setState(() {
         prescriptions = result;
       });
@@ -132,8 +135,8 @@ class _PrescriptionPageState extends State<PrescriptionPage> {
                   ],
                 ),
                 ListTile(
-                  title: Text('Début: ${_formatDate(prescriptions![index]['start'])}'),
-                  subtitle: Text('Fin: ${_formatDate(prescriptions![index]['end'])}'),
+                  title: Text('Début: ${AuthUtils().formatDate(prescriptions![index]['start'])}'),
+                  subtitle: Text('Fin: ${AuthUtils().formatDate(prescriptions![index]['end'])}'),
                 ),
                 ExpansionTile(
                   leading: Icon(Icons.medical_services),
@@ -176,13 +179,7 @@ class _PrescriptionPageState extends State<PrescriptionPage> {
 
 
 
-  String _formatDate(String date) {
-    DateTime dateTime = DateTime.parse(date);
 
-    return DateFormat('dd-MM-yyyy').format(dateTime);
-
-    //return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
-  }
 
   Future<void> _showEditPrescriptionDialog(BuildContext context, int prescriptionId, String currentEndDate) async {
     DateTime? selectedDate = DateTime.parse(currentEndDate); // Initialisez la date sélectionnée à la date actuelle
