@@ -1,9 +1,9 @@
 import 'package:doctor/pages/addOpinion.dart';
 import 'package:flutter/material.dart';
-import 'package:doctor/service/opinion.dart';
-import 'package:doctor/entity/opinion.dart';
+import 'package:doctor/service/opinion_api.dart';
 import 'package:doctor/service/patient_api.dart';
 import 'package:doctor/utils/utils.dart';
+import 'package:doctor/entities/opinion.dart';
 
 class OpinionPage extends StatefulWidget {
   final int? patientId;
@@ -118,14 +118,16 @@ class _OpinionPageState extends State<OpinionPage> {
         itemCount: opinions!.length,
         itemBuilder: (context, index) {
           var opinion = opinions![index];
+          Opinion opinionObject = Opinion.fromJson(opinion); // Conversion de la Map en un objet Opinion
+
           return Card(
             child: ListTile(
-              title: Text(opinion['title']),
-              subtitle: Text(AuthUtils().formatDate(opinion['date'])),
+              title: Text(opinionObject.title),
+              subtitle: Text(AppDateUtils().formatDate(opinionObject.date.toString())),
               trailing: IconButton(
                 icon: Icon(Icons.info),
                 onPressed: () {
-                  _showDescriptionDialog(opinion['title'], opinion['description']);
+                  _showDescriptionDialog(opinionObject.title, opinionObject.description);
                 },
               ),
             ),

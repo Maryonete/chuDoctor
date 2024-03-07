@@ -1,13 +1,13 @@
-import 'dart:convert';
+import 'package:doctor/utils/utils.dart';
+import 'package:doctor/service/api.dart';
 import 'package:doctor/pages/home.dart';
 import 'package:flutter/material.dart';
-import 'package:doctor/service/api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class LoginPage extends StatefulWidget {
 
+class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
 
   static const route = '/login';
@@ -18,10 +18,13 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  TextEditingController emailController = TextEditingController()..text = 'medecin@studi.fr';
+  TextEditingController emailController = TextEditingController(); //..text = 'medecin@studi.fr';
   TextEditingController passwordController = TextEditingController();
 
-  login() async {
+  bool isObscure = true;
+  bool rememberMe = false;
+
+  login(bool rememberMe) async {
     var data = {
       'username': emailController.text,
       'password': passwordController.text,
@@ -29,32 +32,42 @@ class _LoginPageState extends State<LoginPage> {
 
     var body = await Api().login(data, context);
 
-    if (body['code'] == 401) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Identifiants incorrects',
-            style: TextStyle(color: Colors.white),
-          ),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-
     if (body['token'] != null) {
       SharedPreferences localStorage = await SharedPreferences.getInstance();
       localStorage.setString('token', body['token']);
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => HomePage()));
+
+      if (rememberMe) { // Sauvegarder les informations de connexion si "Se souvenir de moi" est coché
+        await AuthUtils.saveCredentials(emailController.text, passwordController.text);
+      } else {
+        localStorage.setBool('rememberMe', false);
+      }
+      Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
     }
   }
 
 
   @override
+  void initState() {
+    super.initState();
+    checkRememberMe();
+  }
+
+  checkRememberMe() async {
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    setState(() {
+      rememberMe = localStorage.getBool('rememberMe') ?? false;
+      if (rememberMe) {
+        emailController.text = localStorage.getString('email') ?? '';
+        passwordController.text = localStorage.getString('password') ?? '';
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.lightBlue[50],
-      body: SingleChildScrollView( // Utilisation de SingleChildScrollView pour éviter le débordement
+      body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(10),
           child: Form(
@@ -111,14 +124,25 @@ class _LoginPageState extends State<LoginPage> {
                 Container(
                   margin: const EdgeInsets.only(bottom: 10),
                   child: TextFormField(
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Mot de passe',
                       hintText: '******',
                       border: OutlineInputBorder(),
                       labelStyle: TextStyle(fontSize: 18),
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            isObscure = !isObscure;
+                          });
+                        },
+                        icon: Icon(
+                          isObscure ? Icons.visibility_off : Icons.visibility,
+                          color: Colors.grey,
+                        ),
+                      ),
                     ),
                     controller: passwordController,
-                    obscureText: true,
+                    obscureText: isObscure,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return "Ce champ ne peut être vide";
@@ -133,17 +157,30 @@ class _LoginPageState extends State<LoginPage> {
                     },
                   ),
                 ),
+                Row(
+                  children: <Widget>[
+                    Checkbox(
+                      value: rememberMe,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          rememberMe = value!;
+                        });
+                      },
+                    ),
+                    Text("Se souvenir de moi"),
+                  ],
+                ),
                 SizedBox(
                   width: double.infinity,
                   height: 50,
                   child: ElevatedButton(
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Envoi en cours ... ")),
-                        );
+                        SnackbarUtils.showMessage(context,'Envoi en cours ... ', backgroundColor: Colors.black);
+
                         FocusScope.of(context).requestFocus(FocusNode());
-                        login();
+                        login(rememberMe);
+
                       }
                     },
                     style: ElevatedButton.styleFrom(

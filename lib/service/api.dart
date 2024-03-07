@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io'; // Ajout de l'importation pour X509Certificate
 import 'package:doctor/utils/constants.dart';
 import 'package:doctor/utils/utils.dart';
+import 'package:doctor/utils/snackbar_utils.dart';
 
 class Api {
 
@@ -41,31 +42,18 @@ class Api {
           await setInfoDoctor(decodedToken['username'], context);
 
           return jsonResponse;
-        }   else if (response.statusCode == 400) {
-          throw Exception('Erreur de syntaxe dans la requête: ${response.statusCode}');
         }
         else {
           throw Exception('Erreur de connexion: ${response.statusCode}');
         }
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              e.toString(),
-              style: const TextStyle(color: Colors.white),
-            ),
-            backgroundColor: Colors.red,
-          ),
-        );
+        SnackbarUtils.showMessage(context, e.toString());
         throw e;
       }
     }  catch (e) {
       print(e.toString());
       rethrow;
     }
-
-    // Dans le cas où aucun des chemins ci-dessus n'est suivi, vous pouvez choisir de retourner une valeur par défaut
-    return {};
   }
 
   // info docteur connecté
@@ -97,24 +85,14 @@ class Api {
 
         if (response.statusCode == 200) {
           var jsonResponse = jsonDecode(response.body);
-
           localStorage.setString('user_id', jsonResponse['user_id'].toString());
           localStorage.setString('firstName', jsonResponse['firstName']);
           localStorage.setString('lastName', jsonResponse['lastName']);
           localStorage.setString('email', email);
-
         }
       } catch (e) {
         print(e.toString());
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              e.toString(),
-              style: const TextStyle(color: Colors.white),
-            ),
-            backgroundColor: Colors.red,
-          ),
-        );
+        SnackbarUtils.showMessage(context, e.toString());
       }
     } catch (e) {
       print(e.toString());

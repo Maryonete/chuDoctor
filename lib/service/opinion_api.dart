@@ -94,13 +94,13 @@ class OpinionApi {
       print(jsonEncode(opinionData));
 
       if (response.statusCode != 200) {
-        throw Exception('Failed to update prescription end date - status : ' + response.statusCode.toString());
+        throw Exception('Failed to add avis - status : ' + response.statusCode.toString());
       }
-      print('Prescription ajoutée avec succès');
+      print('Avis ajouté avec succès');
       // Si la mise à jour s'est déroulée avec succès, retourner true
     } catch (e) {
       // En cas d'erreur, retourner false
-      print('Error updating prescription date: $e');
+      print('Error updating avis date: $e');
     }
   }
 

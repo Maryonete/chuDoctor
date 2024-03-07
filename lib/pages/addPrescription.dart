@@ -4,8 +4,8 @@ import 'package:doctor/service/patient_api.dart';
 import 'package:doctor/utils/utils.dart';
 import 'package:intl/intl.dart';
 import 'package:doctor/pages/prescription.dart';
-import 'package:doctor/service/prescription.dart';
-
+import 'package:doctor/service/prescription_api.dart';
+import 'package:doctor/utils/snackbar_utils.dart';
 
 class AddPrescriptionPage extends StatefulWidget {
   final int? patientId;
@@ -347,20 +347,10 @@ class _AddPrescriptionPageState extends State<AddPrescriptionPage> {
       final String formattedDate = formatter.format(pickedDate);
 
       if (pickedDate.isBefore(currentDate)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('La date ne peut pas être antérieure à la date actuelle.'),
-            duration: const Duration(seconds: 2),
-          ),
-        );
+        SnackbarUtils.showMessage(context,'La date ne peut pas être antérieure à la date actuelle',duration: Duration(seconds: 2));
       } else if (controller.text.isNotEmpty && pickedDate.isBefore(formatter.parse(controller.text))) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('La date de fin ne peut pas être antérieure à la date de début.'),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      } else {
+         SnackbarUtils.showMessage(context,'La date de fin ne peut pas être antérieure à la date de début.',duration: Duration(seconds: 2));
+       } else {
         setState(() {
           controller.text = formattedDate;
         });
@@ -374,37 +364,31 @@ class _AddPrescriptionPageState extends State<AddPrescriptionPage> {
   Future<void> _addPrescription() async {
     String startDate = _startDateController.text;
     String endDate = _endDateController.text;
-// Appeler la fonction checkMedecinID pour obtenir l'ID du médecin
-    String? medecinId = await AuthUtils().checkMedecinID();
+
     if (startDate.isEmpty || endDate.isEmpty || medications.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Veuillez remplir toutes les informations nécessaires.'),
-        duration: Duration(seconds: 2),
-        backgroundColor: Colors.red,
-      ));
+      SnackbarUtils.showMessage(context, 'Veuillez renseigner toutes les informations nécessaires.', duration: Duration(seconds: 5));
       return;
     }
-
+    // Appeler la fonction checkMedecinID pour obtenir l'ID du médecin
+    String? medecinId = await AuthUtils().checkMedecinID();
     final DateFormat formatter = DateFormat('dd-MM-yyyy');
     final DateTime currentDate = DateTime.now();
     final DateTime startDateTime = formatter.parse(startDate);
     final DateTime endDateTime = formatter.parse(endDate);
 
     if (startDateTime.isBefore(currentDate)) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('La date de début ne peut pas être antérieure à la date actuelle.'),
-        duration: Duration(seconds: 2),
-        backgroundColor: Colors.red,
-      ));
+      SnackbarUtils.showMessage(
+          context,
+          'La date de début ne peut pas être antérieure à la date actuelle',
+          duration: Duration(seconds: 2));
       return;
     }
 
     if (endDateTime.isBefore(startDateTime)) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('La date de fin ne peut pas être antérieure à la date de début.'),
-        duration: Duration(seconds: 2),
-        backgroundColor: Colors.red,
-      ));
+      SnackbarUtils.showMessage(
+          context,
+          'La date de fin ne peut pas être antérieure à la date de début',
+          duration: Duration(seconds: 2));
       return;
     }
 
@@ -459,21 +443,19 @@ class _AddPrescriptionPageState extends State<AddPrescriptionPage> {
           builder: (context) => PrescriptionPage(patientId: widget.patientId),
         ),
       );
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Prescription ajoutée avec succès.'),
-        duration: Duration(seconds: 2),
-        backgroundColor: Colors.green,
-      ));
+
+      SnackbarUtils.showMessage(context,'Prescription ajoutée avec succès',backgroundColor: Colors.green, duration: Duration(seconds: 2));
+
     } catch (e) {
       // Gérer les erreurs de l'API
       setState(() {
         _isLoading = false; // Désactiver l'indicateur de chargement en cas d'erreur
       });
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Une erreur s\'est produite lors de l\'ajout de la prescription.'),
-        duration: Duration(seconds: 2),
-        backgroundColor: Colors.red,
-      ));
+      SnackbarUtils.showMessage(
+          context,
+          'Une erreur s\'est produite lors de l\'ajout de la prescription',
+          duration: Duration(seconds: 2));
+
       print('Error adding prescription: $e');
     }
   }

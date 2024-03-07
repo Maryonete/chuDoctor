@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:doctor/service/opinion.dart';
+import 'package:doctor/service/opinion_api.dart';
 import 'package:intl/intl.dart';
 import 'package:doctor/service/patient_api.dart';
 import 'package:doctor/utils/utils.dart';
+import 'package:doctor/pages/opinion.dart';
+
 
 class AddOpinionPage extends StatefulWidget {
   final int? patientId;
@@ -128,9 +130,14 @@ class _AddOpinionPageState extends State<AddOpinionPage> {
 
       // Appeler la méthode pour ajouter l'avis
       await OpinionApi.addOpinion(context, opinion);
+// Naviguer vers PrescriptionPage après l'enregistrement réussi avec widget.patientId
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => OpinionPage(patientId: widget.patientId),
+        ),
+      );
 
-      // Retourner à la page précédente après avoir ajouté l'avis
-      Navigator.of(context).pop();
     } catch (e) {
       // Gérer les erreurs en cas d'échec de l'ajout de l'avis
       print('Error adding opinion: $e');

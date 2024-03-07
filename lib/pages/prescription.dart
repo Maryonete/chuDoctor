@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:doctor/utils/utils.dart';
 import 'package:doctor/pages/addPrescription.dart';
 import 'package:doctor/service/patient_api.dart';
-import 'package:doctor/service/prescription.dart';
+import 'package:doctor/service/prescription_api.dart';
 
 
 class PrescriptionPage extends StatefulWidget {
@@ -135,8 +135,8 @@ class _PrescriptionPageState extends State<PrescriptionPage> {
                   ],
                 ),
                 ListTile(
-                  title: Text('Début: ${AuthUtils().formatDate(prescriptions![index]['start'])}'),
-                  subtitle: Text('Fin: ${AuthUtils().formatDate(prescriptions![index]['end'])}'),
+                  title: Text('Début: ${AppDateUtils().formatDate(prescriptions![index]['start'])}'),
+                  subtitle: Text('Fin: ${AppDateUtils().formatDate(prescriptions![index]['end'])}'),
                 ),
                 ExpansionTile(
                   leading: Icon(Icons.medical_services),
