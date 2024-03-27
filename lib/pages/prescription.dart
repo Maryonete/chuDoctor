@@ -36,7 +36,7 @@ class _PrescriptionPageState extends State<PrescriptionPage> {
   Future<void> fetchPatientInfo() async {
     if (widget.patientId != null) {
       try {
-        Map<String, dynamic>? result = await PatientApi.fetchPatientInfo(widget.patientId!);
+        Map<String, dynamic>? result = await AppUsersUtils.fetchPatientInfo(context, widget.patientId!);
         setState(() {
           patientInfo = result;
         });
@@ -51,7 +51,7 @@ class _PrescriptionPageState extends State<PrescriptionPage> {
     try {
       Map<String, dynamic> prescriptionData = {
         'patient_id': widget.patientId,
-        'medecin_id': await AuthUtils().checkMedecinID(),
+        'medecin_id': await AppUsersUtils().checkMedecinID(),
       };
       List<Map<String, dynamic>>? result =
       await PrescriptionApi.getPrescriptionsPatient(context, prescriptionData);

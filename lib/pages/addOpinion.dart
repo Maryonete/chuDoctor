@@ -30,7 +30,7 @@ class _AddOpinionPageState extends State<AddOpinionPage> {
   Future<void> fetchPatientInfo() async {
     if (widget.patientId != null) {
       try {
-        Map<String, dynamic>? result = await PatientApi.fetchPatientInfo(widget.patientId!);
+        Map<String, dynamic>? result = await AppUsersUtils.fetchPatientInfo(context, widget.patientId!);
         setState(() {
           patientInfo = result;
         });
@@ -118,7 +118,7 @@ class _AddOpinionPageState extends State<AddOpinionPage> {
     try {
       // Récupérer la date du jour
       final currentDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
-      String? medecinId = await AuthUtils().checkMedecinID();
+      String? medecinId = await AppUsersUtils().checkMedecinID();
       // Créer un objet Opinion à partir des données du formulaire
       final opinion = {
         'title': _titleController.text,

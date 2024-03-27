@@ -1,35 +1,64 @@
-# doctor
+# SoigneMoi - Mobile Application
 
-Application mobile pour les médecins du CHU SoigneMoi
+Welcome to the SoigneMoi mobile application!
+This application allows doctors to manage patients, prescriptions, and opinions in a simple and efficient way.
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter application.
+#Prescriptions and Opinions Management by Doctors
 
-## package 
-mysql1 0.20.0 : https://pub.dev/packages/mysql1
+*Description:*
+    - Doctors can enter and manage prescriptions for their patients directly from the mobile application.
+    - During visits to patients, doctors enter their opinions and prescriptions on their mobile devices, which are recorded in the patient's file.
 
-## Description
+*Opinions Characteristics:*
+    - Doctors can add opinions with a label, date, description, and their name.
 
-Cette application permet de gérer les prescriptions médicales pour les patients. 
-Les médecins peuvent ajouter de nouvelles prescriptions, consulter et modifier les 
-prescriptions existantes, et gérer les avis sur l'état des patients.
-
-## Fonctionnalités
-
-- Ajout de nouvelles prescriptions médicales
-- Consultation et modification des prescriptions existantes
--  Ajout de nouveaux avis médicaux
-- Consultation et modification des avis
+*Prescriptions Characteristics:*
+    - Prescriptions include a list of medications with their dosages.
+    - Each prescription has a start date of treatment and an end date.
+    - Doctors have the option to modify the end date if the patient is considered cured.
 
 
-## Captures d'écran
+## Direct Use
 
-#TODO
-
-## Installation
-
-1. Cloner ce dépôt :
-
+To use the application, please download it from the PlayStore:
 ```bash
-git clone https://github.com/...
+
+```
+
+## Local Installation
+
+### Prerequisites
+
+Make sure you have the following installed before you begin:
+    - Git
+    - Flutter SDK
+    - Android Studio (for Android development)
+
+### Installation
+
+1. Clone this repository to your local machine:
+```bash
+git clone https://github.com/Maryonete/doctor
+```
+2. Navigate to the project directory:
+```bash
+ cd doctor
+```
+3. Install dependencies by running the following command:
+```bash
+flutter pub get
+```
+4. Finally, run the application on an emulator or connected device:
+```bash
+flutter run
+```
+## Usage
+
+#### Test User Credentials
+
+- **Secretary**:
+
+    -  Email: staff@studi.fr
+    - Password: test

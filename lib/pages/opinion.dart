@@ -28,7 +28,10 @@ class _OpinionPageState extends State<OpinionPage> {
   Future<void> fetchPatientInfo() async {
     if (widget.patientId != null) {
       try {
-        Map<String, dynamic>? result = await PatientApi.fetchPatientInfo(widget.patientId!);
+
+        Map<String, dynamic>? result = await AppUsersUtils.fetchPatientInfo(context,widget.patientId!);
+
+
         setState(() {
           patientInfo = result;
         });
@@ -42,7 +45,7 @@ class _OpinionPageState extends State<OpinionPage> {
     try {
       Map<String, dynamic> opinionData = {
         'patient_id': widget.patientId,
-        'medecin_id': await AuthUtils().checkMedecinID(),
+        'medecin_id': await AppUsersUtils().checkMedecinID(),
       };
       List<Map<String, dynamic>>? result = await OpinionApi.getOpinionsPatient(context, opinionData);
       result!.sort((a, b) => b['date'].compareTo(a['date'])); // Tri des opinions par date du plus récent au plus ancien

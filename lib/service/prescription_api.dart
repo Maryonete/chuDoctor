@@ -1,29 +1,26 @@
-import 'dart:io'; // Ajout de l'importation pour X509Certificate
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/io_client.dart';
+import 'package:http/http.dart' as http; // Modification de l'importation pour utiliser http au lieu de IOClient
 import 'package:doctor/utils/constants.dart';
 
-
 class PrescriptionApi {
-
-  // Retourne la liste des prescriptions d un patient
-  static Future<List<Map<String, dynamic>>?> getPrescriptionsPatient(BuildContext context,  Map<String, dynamic> prescriptionData) async {
-    print('[API] getPrescriptionsPatient');
+  // Retourne la liste des prescriptions d'un patient.
+  //
+  // Cette fonction envoie une requête POST à l'API pour obtenir la liste des prescriptions
+  // associées à un patient. Elle utilise les données de prescription fournies pour
+  // construire le corps de la requête. Si la requête réussit avec un code de statut 200,
+  // elle décode la réponse JSON en une liste dynamique d'objets Dart représentant les
+  // données des prescriptions. Ensuite, elle parcourt chaque élément de la liste, vérifie
+  // l'existence des clés nécessaires, et ajoute les données de chaque prescription à une
+  // liste. En cas d'échec du décodage JSON ou d'une erreur de requête HTTP, une exception
+  // est levée avec un message approprié.
+  static Future<List<Map<String, dynamic>>?> getPrescriptionsPatient(BuildContext context, Map<String, dynamic> prescriptionData) async {
+    //print('[API] getPrescriptionsPatient');
 
     final url = Uri.parse(urlApi + 'getPrescriptionPatients');
-    
-    // Créer un client HTTP avec désactivation de la vérification du certificat SSL
-    HttpClient httpClient = HttpClient()
-      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
 
     try {
-      // Utiliser IOClient à la place de http.IOClient
-      var clientWithBadCert = IOClient(
-        httpClient,
-      );
-
-      var response = await clientWithBadCert.post(
+      var response = await http.post(
         url,
         body: jsonEncode(prescriptionData),
         headers: <String, String>{
@@ -31,89 +28,83 @@ class PrescriptionApi {
         },
       );
 
-
       if (response.statusCode == 200) {
         try {
-          // Décoder la chaîne JSON en une liste dynamique d'objets Dart
           List<dynamic> jsonData = jsonDecode(response.body);
           List<Map<String, dynamic>> patientDataList = [];
 
-          // Parcourir chaque élément de la liste
           for (var item in jsonData) {
-
-            // Vérifier si toutes les clés nécessaires existent dans l'objet
-            if (item.containsKey('id') ) {
-              // Extraire les données du patient de l'élément actuel
+            if (item.containsKey('id')) {
               Map<String, dynamic> patientData = {
                 'id': item['id'],
                 'start': item['start'],
                 'end': item['end'],
-                'medications': item['medications'], // Ajouter la liste des médications à patientData
+                'medications': item['medications'],
               };
-
-              // Ajouter les données du patient à la liste
               patientDataList.add(patientData);
-            } else {
-              print('Les données de la prescription sont incomplètes  : $item');
             }
           }
-          // Retourner la liste des prescriptions du patient
           return patientDataList;
         } catch (e) {
-          // Gérer les exceptions
-          print('Erreur lors du décodage de la réponse JSON: $e');
+          //print('Erreur lors du décodage de la réponse JSON: $e');
           throw Exception('Erreur lors du décodage de la réponse JSON');
         }
       } else {
-        // Gérer les erreurs de réponse HTTP
-        print('Erreur de requête: ${response.reasonPhrase}');
+        //print('Erreur de requête: ${response.reasonPhrase}');
         throw Exception('Erreur de requête: ${response.reasonPhrase}');
       }
     } catch (e) {
-      print(e.toString());
+      //print(e.toString());
       rethrow;
     }
   }
-  // création  d'une prescription
+
+  // Création d'une nouvelle prescription.
+  //
+  // Cette fonction envoie une requête POST à l'API pour créer une nouvelle prescription
+  // en utilisant les données fournies dans le paramètre 'prescriptionData'. Les données
+  // de la prescription sont encodées en JSON et incluses dans le corps de la requête.
+  // Si la création de la prescription réussit avec un code de statut 200, la fonction
+  // affiche un message indiquant que la prescription a été ajoutée avec succès. En cas
+  // d'échec de la requête HTTP, une exception est levée avec un message d'erreur
+  // approprié, et l'erreur est affichée dans la console.
   Future<void> addPrescription(Map<String, dynamic> prescriptionData) async {
-    print("[API addPrescription]");
+    //print("[API addPrescription]");
     final url = Uri.parse(urlApi + 'addPrescription');
-    HttpClient httpClient = HttpClient()
-      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
 
     try {
-      var clientWithBadCert = IOClient(httpClient);
-
-      var response = await clientWithBadCert.post(
+      var response = await http.post(
         url,
         body: jsonEncode(prescriptionData),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
       );
-      print(jsonEncode(prescriptionData));
+      //print(jsonEncode(prescriptionData));
 
       if (response.statusCode != 200) {
-        throw Exception('Failed to update prescription end date - status : ' + response.statusCode.toString());
+        throw Exception('Failed to update prescription end date - status : ${response.statusCode}');
       }
-      print('Prescription ajoutée avec succès');
-      // Si la mise à jour s'est déroulée avec succès, retourner true
+      // print('Prescription ajoutée avec succès');
     } catch (e) {
-      // En cas d'erreur, retourner false
       print('Error updating prescription date: $e');
     }
   }
-  // maj date de fin d'une prescription
+
+  // Mise à jour de la date de fin d'une prescription.
+  //
+  // Cette fonction envoie une requête POST à l'API pour mettre à jour la date de fin
+  // d'une prescription spécifique identifiée par son ID. Elle utilise l'identifiant de
+  // la prescription et la nouvelle date de fin fournie pour construire le corps de la
+  // requête. Si la requête réussit avec un code de statut 200, elle retourne true pour
+  // indiquer que la mise à jour a été effectuée avec succès. En cas d'échec de la requête
+  // HTTP, une exception est levée avec un message d'erreur approprié, et la fonction
+  // retourne false. Les erreurs sont affichées dans la console.
   Future<bool> setPrescriptionDateEnd(int prescriptionId, DateTime newDate) async {
     final url = Uri.parse(urlApi + 'setPrescriptionDateEnd');
 
-    HttpClient httpClient = HttpClient()
-      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
-
     try {
-      var clientWithBadCert = IOClient(httpClient);
-
-      var response = await clientWithBadCert.post(
+      var response = await http.post(
         url,
         body: jsonEncode(<String, dynamic>{
           'prescriptionId': prescriptionId,
@@ -125,17 +116,60 @@ class PrescriptionApi {
       );
 
       if (response.statusCode != 200) {
-        throw Exception('Failed to update prescription end date - status : ' + response.statusCode.toString());
+        throw Exception('Failed to update prescription end date - status : ${response.statusCode}');
       }
 
-      // Si la mise à jour s'est déroulée avec succès, retourner true
       return true;
     } catch (e) {
-      // En cas d'erreur, retourner false
       print('Error updating prescription date: $e');
       return false;
     }
   }
 
+  // Retourne la liste des médicaments.
+  //
+  // Cette fonction envoie une requête POST à l'API pour obtenir la liste des médicaments.
+  // Si la requête réussit avec un code de statut 200, elle décode la réponse JSON en une
+  // liste dynamique d'objets Dart représentant les données des médicaments. Ensuite, elle
+  // parcourt chaque élément de la liste et construit un objet contenant l'identifiant et
+  // le nom du médicament, qu'elle ajoute à une liste. En cas d'échec du décodage JSON ou
+  // d'une erreur de requête HTTP, une exception est levée avec un message approprié.
+  Future<List<Map<String, dynamic>>?> getDrugs(BuildContext context) async {
+    print('[API] getDrugs');
+    final url = Uri.parse(urlApi + 'getDrugs');
 
+    try {
+      var response = await http.post(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        try {
+          List<dynamic> jsonData = jsonDecode(response.body);
+          List<Map<String, dynamic>> drugDataList = [];
+
+          for (var item in jsonData) {
+            Map<String, dynamic> drugData = {
+              'id': item['id'],
+              'name': item['name'],
+            };
+            drugDataList.add(drugData);
+          }
+          return drugDataList;
+        } catch (e) {
+          print('Erreur lors du décodage de la réponse JSON: $e');
+          throw Exception('Erreur lors du décodage de la réponse JSON');
+        }
+      } else {
+        print('Erreur de requête: ${response.reasonPhrase}');
+        throw Exception('Erreur de requête: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      print(e.toString());
+      rethrow;
+    }
+  }
 }

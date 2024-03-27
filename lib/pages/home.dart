@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:doctor/service/api.dart';
+import 'package:doctor/service/patient_api.dart';
 import 'package:doctor/pages/opinion.dart';
 import 'package:doctor/pages/prescription.dart';
 import 'package:doctor/utils/utils.dart';
@@ -24,7 +25,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> fetchData() async {
     try {
       Api api = Api();
-      List<Map<String, dynamic>>? patientsData = await api.getPatients(context);
+      List<Map<String, dynamic>>? patientsData = await PatientApi().getPatients(context);
       setState(() {
         patients = patientsData;
       });

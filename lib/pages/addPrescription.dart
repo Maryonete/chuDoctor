@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:doctor/service/api.dart';
-import 'package:doctor/service/patient_api.dart';
 import 'package:doctor/utils/utils.dart';
 import 'package:intl/intl.dart';
 import 'package:doctor/pages/prescription.dart';
 import 'package:doctor/service/prescription_api.dart';
-import 'package:doctor/utils/snackbar_utils.dart';
+
 
 class AddPrescriptionPage extends StatefulWidget {
   final int? patientId;
@@ -57,24 +55,24 @@ class _AddPrescriptionPageState extends State<AddPrescriptionPage> {
 
   Future<void> fetchDrugs() async {
     try {
-      List<Map<String, dynamic>>? result = await Api().getDrugs(context);
+      List<Map<String, dynamic>>? result = await PrescriptionApi().getDrugs(context);
       setState(() {
         drugs = result ?? []; // Utiliser une liste vide si result est null
       });
     } catch (e) {
-      print('Error fetching drugs: $e');
+      SnackbarUtils.showMessage(context,'Error fetching drugs: $e',duration: Duration(seconds: 2));
     }
   }
 
   Future<void> fetchPatientInfo() async {
     if (widget.patientId != null) {
       try {
-        Map<String, dynamic>? result = await PatientApi.fetchPatientInfo(widget.patientId!);
+        Map<String, dynamic>? result = await AppUsersUtils.fetchPatientInfo(context, widget.patientId!);
         setState(() {
           patientInfo = result;
         });
       } catch (e) {
-        print('Error fetching patient info: $e');
+        SnackbarUtils.showMessage(context,'Erreur: $e',duration: Duration(seconds: 2));
       }
     }
   }
@@ -370,7 +368,7 @@ class _AddPrescriptionPageState extends State<AddPrescriptionPage> {
       return;
     }
     // Appeler la fonction checkMedecinID pour obtenir l'ID du médecin
-    String? medecinId = await AuthUtils().checkMedecinID();
+    String? medecinId = await AppUsersUtils().checkMedecinID();
     final DateFormat formatter = DateFormat('dd-MM-yyyy');
     final DateTime currentDate = DateTime.now();
     final DateTime startDateTime = formatter.parse(startDate);
