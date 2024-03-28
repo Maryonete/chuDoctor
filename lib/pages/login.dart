@@ -1,4 +1,5 @@
 import 'package:doctor/utils/utils.dart';
+import 'package:doctor/utils/constants.dart';
 import 'package:doctor/service/api.dart';
 import 'package:doctor/pages/home.dart';
 import 'package:flutter/material.dart';
@@ -66,10 +67,10 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.lightBlue[50],
+
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(10),
+          padding: EdgeInsets.only(top: 25,bottom: 10),
           child: Form(
             key: _formKey,
             child: Column(
@@ -87,8 +88,8 @@ class _LoginPageState extends State<LoginPage> {
                   maxLines: 2,
                   style: TextStyle(
                     fontSize: 38,
-                    fontFamily: 'Poppins',
-                    color: Color(0xFF002E6E),
+                    fontFamily: 'Georgia',
+                    color: AppColors.myColor,
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -96,67 +97,81 @@ class _LoginPageState extends State<LoginPage> {
                   "Espace médecins",
                   style: TextStyle(
                     fontSize: 24,
-                    color: Color(0xFF002E6E),
+                    fontFamily: 'Georgia',
+                    color: AppColors.myColor,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 10),
                 Container(
                   margin: const EdgeInsets.only(bottom: 20),
-                  child: TextFormField(
-                    decoration: const InputDecoration(
-                      labelText: 'Email',
-                      hintText: 'exemple@chu.fr',
-                      border: OutlineInputBorder(),
-                      labelStyle: TextStyle(fontSize: 18),
-                    ),
-                    controller: emailController,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Ce champ ne peut être vide";
-                      } else if (!EmailValidator.validate(value)) {
-                        return 'Veuillez saisir un email correct';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  child: TextFormField(
-                    decoration: InputDecoration(
-                      labelText: 'Mot de passe',
-                      hintText: '******',
-                      border: OutlineInputBorder(),
-                      labelStyle: TextStyle(fontSize: 18),
-                      suffixIcon: IconButton(
-                        onPressed: () {
-                          setState(() {
-                            isObscure = !isObscure;
-                          });
-                        },
-                        icon: Icon(
-                          isObscure ? Icons.visibility_off : Icons.visibility,
-                          color: Colors.grey,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: TextFormField(
+                      decoration: const InputDecoration(
+                        labelText: 'Email',
+                        hintText: 'exemple@chu.fr',
+                        border: OutlineInputBorder(),
+                        labelStyle: TextStyle(fontSize: 18, color: AppColors.myColor),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: AppColors.myColor),
                         ),
                       ),
+                      controller: emailController,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Ce champ ne peut être vide";
+                        } else if (!EmailValidator.validate(value)) {
+                          return 'Veuillez saisir un email correct';
+                        }
+                        return null;
+                      },
                     ),
-                    controller: passwordController,
-                    obscureText: isObscure,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Ce champ ne peut être vide";
-                      }
-                      return null;
-                    },
-                    onTap: () {
-                      setState(() {
-                        // Vider le champ de texte du mot de passe
-                        passwordController.clear();
-                      });
-                    },
                   ),
                 ),
+
+                Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: TextFormField(
+                      decoration: InputDecoration(
+                        labelText: 'Mot de passe',
+                        hintText: '******',
+                        border: OutlineInputBorder(),
+                        labelStyle: TextStyle(fontSize: 18, color: AppColors.myColor),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: AppColors.myColor),
+                        ),
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              isObscure = !isObscure;
+                            });
+                          },
+                          icon: Icon(
+                            isObscure ? Icons.visibility_off : Icons.visibility,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ),
+                      controller: passwordController,
+                      obscureText: isObscure,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Ce champ ne peut être vide";
+                        }
+                        return null;
+                      },
+                      onTap: () {
+                        setState(() {
+                          passwordController.clear();
+                        });
+                      },
+                    ),
+                  ),
+                ),
+
                 Row(
                   children: <Widget>[
                     Checkbox(
@@ -166,6 +181,14 @@ class _LoginPageState extends State<LoginPage> {
                           rememberMe = value!;
                         });
                       },
+                      fillColor: MaterialStateProperty.resolveWith<Color>(
+                            (Set<MaterialState> states) {
+                          if (states.contains(MaterialState.selected)) {
+                            return AppColors.myColor; // Couleur de fond de la case cochée
+                          }
+                          return Colors.grey; // Couleur de fond de la case non cochée
+                        },
+                      ),
                     ),
                     Text("Se souvenir de moi"),
                   ],
@@ -173,23 +196,27 @@ class _LoginPageState extends State<LoginPage> {
                 SizedBox(
                   width: double.infinity,
                   height: 50,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        SnackbarUtils.showMessage(context,'Envoi en cours ... ', backgroundColor: Colors.black);
-
-                        FocusScope.of(context).requestFocus(FocusNode());
-                        login(rememberMe);
-
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue[900],
-                      foregroundColor: Colors.white,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10.0), // Padding de 10 pixels à droite et à gauche
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          SnackbarUtils.showMessage(context,'Envoi en cours ... ', backgroundColor: Colors.black);
+                          FocusScope.of(context).requestFocus(FocusNode());
+                          login(rememberMe);
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.myColor,
+                        foregroundColor: Colors.white,
+                      ),
+                      child: const Text(
+                        "S'identifier",
+                        style: TextStyle(fontSize: 20),
+                      ),
                     ),
-                    child: const Text("S'identifier", style: TextStyle(fontSize: 20)),
                   ),
-                )
+                ),
               ],
             ),
           ),

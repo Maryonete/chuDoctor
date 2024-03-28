@@ -3,6 +3,7 @@ import 'package:doctor/utils/utils.dart';
 import 'package:intl/intl.dart';
 import 'package:doctor/pages/prescription.dart';
 import 'package:doctor/service/prescription_api.dart';
+import 'package:doctor/utils/constants.dart';
 
 
 class AddPrescriptionPage extends StatefulWidget {
@@ -160,13 +161,14 @@ class _AddPrescriptionPageState extends State<AddPrescriptionPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue,
+        backgroundColor: AppColors.myColor,
         title: Text(
           patientInfo != null
               ? 'Nouvelle prescription\n${patientInfo!["firstName"]} ${patientInfo!["lastName"]}'
               : 'Prescriptions du patient',
-          style: const TextStyle(color: Colors.white),
+          style: const TextStyle(color: Colors.white, fontFamily: 'Georgia'),
         ),
+        iconTheme: IconThemeData(color: Colors.white),
         actions: [
           IconButton(
             icon: Icon(Icons.logout, color: Colors.white),
@@ -294,7 +296,7 @@ class _AddPrescriptionPageState extends State<AddPrescriptionPage> {
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _addPrescription,
                       style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+                        backgroundColor: MaterialStateProperty.all<Color>(AppColors.myColor),
                         foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
                       ),
                       child: _isLoading

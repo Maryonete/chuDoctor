@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:doctor/service/opinion_api.dart';
 import 'package:intl/intl.dart';
 import 'package:doctor/service/patient_api.dart';
+import 'package:doctor/utils/constants.dart';
 import 'package:doctor/utils/utils.dart';
 import 'package:doctor/pages/opinion.dart';
 
@@ -47,13 +48,14 @@ class _AddOpinionPageState extends State<AddOpinionPage> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue,
+        backgroundColor: AppColors.myColor,
         title: Text(
           patientInfo != null
               ? 'Avis $currentDate\n${patientInfo!["firstName"]} ${patientInfo!["lastName"]}'
               : 'Avis patient',
-          style: const TextStyle(color: Colors.white),
+          style: const TextStyle(color: Colors.white, fontFamily: 'Georgia'),
         ),
+        iconTheme: IconThemeData(color: Colors.white),
         actions: [
           IconButton(
             icon: Icon(Icons.logout, color: Colors.white),
@@ -73,25 +75,28 @@ class _AddOpinionPageState extends State<AddOpinionPage> {
               decoration: InputDecoration(labelText: 'Votre avis',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10.0), // Bordure arrondie
-                  borderSide: BorderSide(color: Colors.blue), // Couleur de la bordure
+                  borderSide: BorderSide(color: AppColors.myColor), // Couleur de la bordure
                 ),
+                labelStyle: TextStyle(fontSize: 18, color: AppColors.myColor),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10.0), // Bordure arrondie
-                  borderSide: BorderSide(color: Colors.blue, width: 2.0), // Couleur de la bordure lorsque le champ est en focus
+                  borderSide: BorderSide(color: AppColors.myColor, width: 2.0), // Couleur de la bordure lorsque le champ est en focus
                 ),),
 
             ),
             SizedBox(height: 16.0),
             TextField(
               controller: _descriptionController,
+
               decoration: InputDecoration(labelText: 'Description',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10.0), // Bordure arrondie
-                  borderSide: BorderSide(color: Colors.blue), // Couleur de la bordure
+                  borderSide: BorderSide(color: AppColors.myColor), // Couleur de la bordure
                 ),
+                labelStyle: TextStyle(fontSize: 18, color: AppColors.myColor),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10.0), // Bordure arrondie
-                  borderSide: BorderSide(color: Colors.blue, width: 2.0), // Couleur de la bordure lorsque le champ est en focus
+                  borderSide: BorderSide(color: AppColors.myColor, width: 2.0), // Couleur de la bordure lorsque le champ est en focus
                 ),),
               maxLines: 5,
             ),
@@ -99,7 +104,7 @@ class _AddOpinionPageState extends State<AddOpinionPage> {
             ElevatedButton(
               onPressed: _isLoading ? null : _submitOpinion,
               style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+                backgroundColor: MaterialStateProperty.all<Color>(AppColors.myColor),
                 foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
               ),
               child: _isLoading ? CircularProgressIndicator() : Text('Ajouter', style: TextStyle(fontSize: 18)),

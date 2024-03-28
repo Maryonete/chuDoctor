@@ -4,6 +4,7 @@ import 'package:doctor/service/opinion_api.dart';
 import 'package:doctor/service/patient_api.dart';
 import 'package:doctor/utils/utils.dart';
 import 'package:doctor/entities/opinion.dart';
+import 'package:doctor/utils/constants.dart';
 
 class OpinionPage extends StatefulWidget {
   final int? patientId;
@@ -82,7 +83,7 @@ class _OpinionPageState extends State<OpinionPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue,
+        backgroundColor: AppColors.myColor,
         title: Row(
           children: [
             Expanded(
@@ -90,12 +91,13 @@ class _OpinionPageState extends State<OpinionPage> {
                 patientInfo != null
                     ? '${patientInfo!["firstName"]} ${patientInfo!["lastName"]}'
                     : 'Avis sur le patient',
-                style: const TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.white, fontFamily: 'Georgia'),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
         ),
+        iconTheme: IconThemeData(color: Colors.white),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white),
@@ -106,7 +108,7 @@ class _OpinionPageState extends State<OpinionPage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.blue,
+        backgroundColor: AppColors.myColor,
         foregroundColor: Colors.white, // Couleur de l'icône
         onPressed: () {
           Navigator.push(
