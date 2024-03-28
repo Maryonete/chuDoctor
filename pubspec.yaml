@@ -1,0 +1,47 @@
+name: chudoctor
+description: "Application mobile pour les médecins du CHU SoigneMoi"
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.6 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.2
+  flutter_svg: ^2.0.9
+  date_field: ^4.0.1
+  mysql1: ^0.20.0
+  http: ^1.2.1
+  intl: ^0.18.1
+  email_validator: '^2.1.16'
+  shared_preferences: ^2.2.2
+  jwt_decode: ^0.3.1
+  dio: ^5.4.1
+  dio_http2_adapter: ^2.5.0
+  flutter_localizations:
+    sdk: flutter
+
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+
+# The following section is specific to Flutter packages.
+flutter:
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+  assets:
+     - assets/images/
+  fonts:
+     - family: Poppins
+       fonts:
+         - asset: assets/fonts/Poppins/Poppins-Regular.ttf
