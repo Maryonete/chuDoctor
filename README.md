@@ -5,7 +5,7 @@ This application allows doctors to manage patients, prescriptions, and opinions 
 
 ## Features
 
-# Prescriptions and Opinions Management by Doctors
+### Prescriptions and Opinions Management by Doctors
 
 *Description:*
     - Doctors can enter and manage prescriptions for their patients directly from the mobile application.
