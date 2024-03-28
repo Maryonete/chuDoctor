@@ -1,9 +1,9 @@
-import 'package:chudoctor/pages/addOpinion.dart';
+import 'package:doctor/pages/addOpinion.dart';
 import 'package:flutter/material.dart';
-import 'package:chudoctor/service/opinion_api.dart';
-import 'package:chudoctor/service/patient_api.dart';
-import 'package:chudoctor/utils/utils.dart';
-import 'package:chudoctor/entities/opinion.dart';
+import 'package:doctor/service/opinion_api.dart';
+import 'package:doctor/service/patient_api.dart';
+import 'package:doctor/utils/utils.dart';
+import 'package:doctor/entities/opinion.dart';
 
 class OpinionPage extends StatefulWidget {
   final int? patientId;
@@ -90,7 +90,7 @@ class _OpinionPageState extends State<OpinionPage> {
                 patientInfo != null
                     ? '${patientInfo!["firstName"]} ${patientInfo!["lastName"]}'
                     : 'Avis sur le patient',
-                style: const TextStyle(color: Colors.white, fontFamily: 'Georgia'),
+                style: const TextStyle(color: Colors.white),
                 overflow: TextOverflow.ellipsis,
               ),
             ),

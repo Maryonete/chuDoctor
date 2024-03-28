@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:chudoctor/utils/constants.dart';
-import 'package:chudoctor/utils/utils.dart';
+import 'package:doctor/utils/constants.dart';
+import 'package:doctor/utils/utils.dart';
 import 'package:http/http.dart' as http;
 
 

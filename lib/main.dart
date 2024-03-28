@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:chudoctor/pages/login.dart';
-import 'package:chudoctor/pages/home.dart';
+import 'package:doctor/pages/login.dart';
+import 'package:doctor/pages/home.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -58,10 +58,6 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'SoigneMoi',
-      theme: ThemeData(
-        // police de l'application
-        fontFamily: 'Roboto',
-      ),
       debugShowCheckedModeBanner: false,
       // calendrier en anglais
       localizationsDelegates: [

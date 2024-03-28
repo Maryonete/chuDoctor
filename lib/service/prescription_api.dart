@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http; // Modification de l'importation pour utiliser http au lieu de IOClient
-import 'package:chudoctor/utils/constants.dart';
+import 'package:doctor/utils/constants.dart';
 
 class PrescriptionApi {
   // Retourne la liste des prescriptions d'un patient.

@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:chudoctor/utils/constants.dart';
+import 'package:doctor/utils/constants.dart';
 import 'package:http/http.dart' as http;
-import 'package:chudoctor/utils/utils.dart';
+import 'package:doctor/utils/utils.dart';
 class OpinionApi {
 
   /**

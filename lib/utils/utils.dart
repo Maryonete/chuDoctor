@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:chudoctor/pages/login.dart';
-import 'package:chudoctor/service/patient_api.dart';
+import 'package:doctor/pages/login.dart';
+import 'package:doctor/service/patient_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 

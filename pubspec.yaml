@@ -1,4 +1,4 @@
-name: chudoctor
+name: doctor
 description: "Application mobile pour les médecins du CHU SoigneMoi"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -18,7 +18,7 @@ dependencies:
   date_field: ^4.0.1
   mysql1: ^0.20.0
   http: ^1.2.1
-  intl: ^0.18.1
+  intl: any
   email_validator: '^2.1.16'
   shared_preferences: ^2.2.2
   jwt_decode: ^0.3.1

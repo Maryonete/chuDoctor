@@ -2,8 +2,8 @@ import 'dart:io'; // Ajout de l'importation pour X509Certificate
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/io_client.dart';
-import 'package:chudoctor/utils/constants.dart';
-import 'package:chudoctor/utils/utils.dart';
+import 'package:doctor/utils/constants.dart';
+import 'package:doctor/utils/utils.dart';
 import 'package:http/http.dart' as http;
 
 

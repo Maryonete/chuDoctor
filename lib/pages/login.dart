@@ -1,6 +1,6 @@
-import 'package:chudoctor/utils/utils.dart';
-import 'package:chudoctor/service/api.dart';
-import 'package:chudoctor/pages/home.dart';
+import 'package:doctor/utils/utils.dart';
+import 'package:doctor/service/api.dart';
+import 'package:doctor/pages/home.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:email_validator/email_validator.dart';
@@ -69,7 +69,7 @@ class _LoginPageState extends State<LoginPage> {
       backgroundColor: Colors.lightBlue[50],
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.only(top: 30,bottom: 10.0),
+          padding: const EdgeInsets.all(10),
           child: Form(
             key: _formKey,
             child: Column(
@@ -87,8 +87,8 @@ class _LoginPageState extends State<LoginPage> {
                   maxLines: 2,
                   style: TextStyle(
                     fontSize: 38,
-                    fontFamily: 'Georgia',
-                    color: Color(0xFF124660),
+                    fontFamily: 'Poppins',
+                    color: Color(0xFF002E6E),
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -96,26 +96,19 @@ class _LoginPageState extends State<LoginPage> {
                   "Espace médecins",
                   style: TextStyle(
                     fontSize: 24,
-                    fontFamily: 'Georgia',
-                    color: Color(0xFF124660),
+                    color: Color(0xFF002E6E),
                   ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 10),
                 Container(
-                  margin: const EdgeInsets.only(bottom: 20, left:10, right:10),
+                  margin: const EdgeInsets.only(bottom: 20),
                   child: TextFormField(
                     decoration: const InputDecoration(
                       labelText: 'Email',
-                      labelStyle: TextStyle(
-                        fontSize: 18,
-                        color: Color(0xFF124660),
-                      ),
                       hintText: 'exemple@chu.fr',
                       border: OutlineInputBorder(),
-                      focusedBorder: OutlineInputBorder( // Style de la bordure lorsque le champ est sélectionné
-                        borderSide: BorderSide(color: Color(0xFF124660)), // Couleur de la bordure en bleu
-                      ),
+                      labelStyle: TextStyle(fontSize: 18),
                     ),
                     controller: emailController,
                     validator: (value) {
@@ -129,16 +122,13 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 Container(
-                  margin: const EdgeInsets.only(bottom: 10, left:10, right:10),
+                  margin: const EdgeInsets.only(bottom: 10),
                   child: TextFormField(
                     decoration: InputDecoration(
                       labelText: 'Mot de passe',
                       hintText: '******',
                       border: OutlineInputBorder(),
-                      focusedBorder: OutlineInputBorder( // Style de la bordure lorsque le champ est sélectionné
-                        borderSide: BorderSide(color: Color(0xFF124660)), // Couleur de la bordure en bleu
-                      ),
-                      labelStyle: TextStyle(fontSize: 18, color: Color(0xFF124660)),
+                      labelStyle: TextStyle(fontSize: 18),
                       suffixIcon: IconButton(
                         onPressed: () {
                           setState(() {
@@ -176,37 +166,30 @@ class _LoginPageState extends State<LoginPage> {
                           rememberMe = value!;
                         });
                       },
-                      activeColor: Color(0xFF124660),
                     ),
-
                     Text("Se souvenir de moi"),
                   ],
                 ),
                 SizedBox(
                   width: double.infinity,
                   height: 50,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          SnackbarUtils.showMessage(context,'Envoi en cours ... ', backgroundColor: Colors.black);
-                          FocusScope.of(context).requestFocus(FocusNode());
-                          login(rememberMe);
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF124660),
-                        foregroundColor: Colors.white,
-                      ),
-                      child: const Text(
-                        "S'identifier",
-                        style: TextStyle(fontSize: 20),
-                      ),
-                    ),
-                  ),
-                ),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        SnackbarUtils.showMessage(context,'Envoi en cours ... ', backgroundColor: Colors.black);
 
+                        FocusScope.of(context).requestFocus(FocusNode());
+                        login(rememberMe);
+
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue[900],
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Text("S'identifier", style: TextStyle(fontSize: 20)),
+                  ),
+                )
               ],
             ),
           ),

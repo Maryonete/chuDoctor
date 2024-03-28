@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:chudoctor/service/api.dart';
-import 'package:chudoctor/service/patient_api.dart';
-import 'package:chudoctor/pages/opinion.dart';
-import 'package:chudoctor/pages/prescription.dart';
-import 'package:chudoctor/utils/utils.dart';
+import 'package:doctor/service/api.dart';
+import 'package:doctor/service/patient_api.dart';
+import 'package:doctor/pages/opinion.dart';
+import 'package:doctor/pages/prescription.dart';
+import 'package:doctor/utils/utils.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -77,8 +77,7 @@ class _HomePageState extends State<HomePage> {
               "Espace médecins",
               style: TextStyle(
                 fontSize: 18,
-                fontFamily: 'Georgia',
-                color: Colors.white,
+                fontFamily: 'Poppins',
               ),
             ),
           ],
@@ -102,7 +101,7 @@ class _HomePageState extends State<HomePage> {
               "Vistes du jour",
               style: TextStyle(
                 fontSize: 24,
-                fontFamily: 'Georgia',
+                fontFamily: 'Poppins',
                 fontWeight: FontWeight.bold,
                 color: Colors.blue,
               ),

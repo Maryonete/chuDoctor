@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:chudoctor/utils/utils.dart';
-import 'package:chudoctor/pages/addPrescription.dart';
-import 'package:chudoctor/service/patient_api.dart';
-import 'package:chudoctor/service/prescription_api.dart';
+import 'package:doctor/utils/utils.dart';
+import 'package:doctor/pages/addPrescription.dart';
+import 'package:doctor/service/patient_api.dart';
+import 'package:doctor/service/prescription_api.dart';
 
 
 class PrescriptionPage extends StatefulWidget {
@@ -75,7 +75,7 @@ class _PrescriptionPageState extends State<PrescriptionPage> {
                 patientInfo != null
                     ? '${patientInfo!["firstName"]} ${patientInfo!["lastName"]}'
                     : 'Prescriptions du patient',
-                style: const TextStyle(color: Colors.white, fontFamily: 'Georgia'),
+                style: const TextStyle(color: Colors.white),
                 overflow: TextOverflow.ellipsis, // Gérer le dépassement de texte avec des points de suspension
               ),
             ),
