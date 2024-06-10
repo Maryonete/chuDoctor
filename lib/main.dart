@@ -5,7 +5,11 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+<<<<<<< HEAD
   runApp(MyApp());
+=======
+  runApp(const MyApp());
+>>>>>>> d0db740 (add icon)
 }
 
 class MyApp extends StatefulWidget {
@@ -15,13 +19,20 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> d0db740 (add icon)
 class _MyAppState extends State<MyApp> {
   bool _isLoggedIn = false;
 
   @override
   void initState() {
     super.initState();
+<<<<<<< HEAD
     print('appel de checkLoginStatus');
+=======
+>>>>>>> d0db740 (add icon)
     checkLoginStatus();
   }
 
@@ -37,7 +48,11 @@ class _MyAppState extends State<MyApp> {
   }
 
   void redirectToLogin() {
+<<<<<<< HEAD
     WidgetsBinding.instance?.addPostFrameCallback((_) {
+=======
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+>>>>>>> d0db740 (add icon)
       Navigator.of(context).pushReplacementNamed('/login');
     });
   }
@@ -60,17 +75,30 @@ class _MyAppState extends State<MyApp> {
       title: 'SoigneMoi',
       debugShowCheckedModeBanner: false,
       // calendrier en anglais
+<<<<<<< HEAD
       localizationsDelegates: [
+=======
+      localizationsDelegates: const [
+>>>>>>> d0db740 (add icon)
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
+<<<<<<< HEAD
       supportedLocales: [
         const Locale('fr', 'FR'),
       ],
       initialRoute: '/login',
       routes: {
         '/login': (context) => LoginPage(),
+=======
+      supportedLocales: const [
+        Locale('fr', 'FR'),
+      ],
+      initialRoute: _isLoggedIn ? '/home' : '/login',
+      routes: {
+        '/login': (context) => const LoginPage(),
+>>>>>>> d0db740 (add icon)
         '/home': (context) => const HomePage(),
       },
     );

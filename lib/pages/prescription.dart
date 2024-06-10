@@ -3,6 +3,10 @@ import 'package:doctor/utils/utils.dart';
 import 'package:doctor/pages/addPrescription.dart';
 import 'package:doctor/service/patient_api.dart';
 import 'package:doctor/service/prescription_api.dart';
+<<<<<<< HEAD
+=======
+import 'package:doctor/utils/constants.dart';
+>>>>>>> d0db740 (add icon)
 
 
 class PrescriptionPage extends StatefulWidget {
@@ -36,7 +40,11 @@ class _PrescriptionPageState extends State<PrescriptionPage> {
   Future<void> fetchPatientInfo() async {
     if (widget.patientId != null) {
       try {
+<<<<<<< HEAD
         Map<String, dynamic>? result = await PatientApi.fetchPatientInfo(widget.patientId!);
+=======
+        Map<String, dynamic>? result = await AppUsersUtils.fetchPatientInfo(context, widget.patientId!);
+>>>>>>> d0db740 (add icon)
         setState(() {
           patientInfo = result;
         });
@@ -51,7 +59,11 @@ class _PrescriptionPageState extends State<PrescriptionPage> {
     try {
       Map<String, dynamic> prescriptionData = {
         'patient_id': widget.patientId,
+<<<<<<< HEAD
         'medecin_id': await AuthUtils().checkMedecinID(),
+=======
+        'medecin_id': await AppUsersUtils().checkMedecinID(),
+>>>>>>> d0db740 (add icon)
       };
       List<Map<String, dynamic>>? result =
       await PrescriptionApi.getPrescriptionsPatient(context, prescriptionData);
@@ -67,7 +79,11 @@ class _PrescriptionPageState extends State<PrescriptionPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+<<<<<<< HEAD
         backgroundColor: Colors.blue,
+=======
+        backgroundColor: AppColors.myColor,
+>>>>>>> d0db740 (add icon)
         title: Row(
           children: [
             Expanded(
@@ -75,14 +91,22 @@ class _PrescriptionPageState extends State<PrescriptionPage> {
                 patientInfo != null
                     ? '${patientInfo!["firstName"]} ${patientInfo!["lastName"]}'
                     : 'Prescriptions du patient',
+<<<<<<< HEAD
                 style: const TextStyle(color: Colors.white),
+=======
+                style: const TextStyle(color: Colors.white, fontFamily: 'Georgia'),
+>>>>>>> d0db740 (add icon)
                 overflow: TextOverflow.ellipsis, // Gérer le dépassement de texte avec des points de suspension
               ),
             ),
 
           ],
         ),
+<<<<<<< HEAD
 
+=======
+        iconTheme: IconThemeData(color: Colors.white),
+>>>>>>> d0db740 (add icon)
         actions: [
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white),
@@ -170,7 +194,11 @@ class _PrescriptionPageState extends State<PrescriptionPage> {
             MaterialPageRoute(builder: (context) => AddPrescriptionPage(patientId: widget.patientId)),
           );
         },
+<<<<<<< HEAD
         backgroundColor: Colors.blue, // Couleur de fond du bouton flottant
+=======
+        backgroundColor: AppColors.myColor, // Couleur de fond du bouton flottant
+>>>>>>> d0db740 (add icon)
         foregroundColor: Colors.white, // Couleur de l'icône
         child: Icon(Icons.add),
       ),
@@ -198,7 +226,11 @@ class _PrescriptionPageState extends State<PrescriptionPage> {
             // Modifiez le texte du bouton d'action principale (Valider)
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
+<<<<<<< HEAD
                 textStyle: TextStyle(color: Colors.blue), // Couleur du texte du bouton
+=======
+                textStyle: TextStyle(color: AppColors.myColor), // Couleur du texte du bouton
+>>>>>>> d0db740 (add icon)
               ),
             ),
           ),

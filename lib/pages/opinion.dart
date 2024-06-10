@@ -1,9 +1,15 @@
 import 'package:doctor/pages/addOpinion.dart';
 import 'package:flutter/material.dart';
 import 'package:doctor/service/opinion_api.dart';
+<<<<<<< HEAD
 import 'package:doctor/service/patient_api.dart';
 import 'package:doctor/utils/utils.dart';
 import 'package:doctor/entities/opinion.dart';
+=======
+import 'package:doctor/utils/utils.dart';
+import 'package:doctor/entities/opinion.dart';
+import 'package:doctor/utils/constants.dart';
+>>>>>>> d0db740 (add icon)
 
 class OpinionPage extends StatefulWidget {
   final int? patientId;
@@ -28,7 +34,14 @@ class _OpinionPageState extends State<OpinionPage> {
   Future<void> fetchPatientInfo() async {
     if (widget.patientId != null) {
       try {
+<<<<<<< HEAD
         Map<String, dynamic>? result = await PatientApi.fetchPatientInfo(widget.patientId!);
+=======
+
+        Map<String, dynamic>? result = await AppUsersUtils.fetchPatientInfo(context,widget.patientId!);
+
+
+>>>>>>> d0db740 (add icon)
         setState(() {
           patientInfo = result;
         });
@@ -42,7 +55,11 @@ class _OpinionPageState extends State<OpinionPage> {
     try {
       Map<String, dynamic> opinionData = {
         'patient_id': widget.patientId,
+<<<<<<< HEAD
         'medecin_id': await AuthUtils().checkMedecinID(),
+=======
+        'medecin_id': await AppUsersUtils().checkMedecinID(),
+>>>>>>> d0db740 (add icon)
       };
       List<Map<String, dynamic>>? result = await OpinionApi.getOpinionsPatient(context, opinionData);
       result!.sort((a, b) => b['date'].compareTo(a['date'])); // Tri des opinions par date du plus récent au plus ancien
@@ -79,7 +96,11 @@ class _OpinionPageState extends State<OpinionPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+<<<<<<< HEAD
         backgroundColor: Colors.blue,
+=======
+        backgroundColor: AppColors.myColor,
+>>>>>>> d0db740 (add icon)
         title: Row(
           children: [
             Expanded(
@@ -87,12 +108,20 @@ class _OpinionPageState extends State<OpinionPage> {
                 patientInfo != null
                     ? '${patientInfo!["firstName"]} ${patientInfo!["lastName"]}'
                     : 'Avis sur le patient',
+<<<<<<< HEAD
                 style: const TextStyle(color: Colors.white),
+=======
+                style: const TextStyle(color: Colors.white, fontFamily: 'Georgia'),
+>>>>>>> d0db740 (add icon)
                 overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
         ),
+<<<<<<< HEAD
+=======
+        iconTheme: IconThemeData(color: Colors.white),
+>>>>>>> d0db740 (add icon)
         actions: [
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white),
@@ -103,7 +132,11 @@ class _OpinionPageState extends State<OpinionPage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
+<<<<<<< HEAD
         backgroundColor: Colors.blue,
+=======
+        backgroundColor: AppColors.myColor,
+>>>>>>> d0db740 (add icon)
         foregroundColor: Colors.white, // Couleur de l'icône
         onPressed: () {
           Navigator.push(
