@@ -5,7 +5,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  runApp(MyApp());
+
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
@@ -15,13 +16,13 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
+
 class _MyAppState extends State<MyApp> {
   bool _isLoggedIn = false;
 
   @override
   void initState() {
     super.initState();
-    print('appel de checkLoginStatus');
     checkLoginStatus();
   }
 
@@ -60,17 +61,19 @@ class _MyAppState extends State<MyApp> {
       title: 'SoigneMoi',
       debugShowCheckedModeBanner: false,
       // calendrier en anglais
-      localizationsDelegates: [
+
+      localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: [
-        const Locale('fr', 'FR'),
+
+      supportedLocales: const [
+        Locale('fr', 'FR'),
       ],
-      initialRoute: '/login',
+      initialRoute: _isLoggedIn ? '/home' : '/login',
       routes: {
-        '/login': (context) => LoginPage(),
+        '/login': (context) => const LoginPage(),
         '/home': (context) => const HomePage(),
       },
     );

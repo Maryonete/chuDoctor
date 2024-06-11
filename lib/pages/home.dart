@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:doctor/service/api.dart';
+import 'package:doctor/service/patient_api.dart';
 import 'package:doctor/pages/opinion.dart';
 import 'package:doctor/pages/prescription.dart';
 import 'package:doctor/utils/utils.dart';
+import 'package:doctor/utils/constants.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -24,7 +26,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> fetchData() async {
     try {
       Api api = Api();
-      List<Map<String, dynamic>>? patientsData = await api.getPatients(context);
+      List<Map<String, dynamic>>? patientsData = await PatientApi().getPatients(context);
       setState(() {
         patients = patientsData;
       });
@@ -48,7 +50,11 @@ class _HomePageState extends State<HomePage> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('Fermer'),
+              child: const Text('Fermer',
+                style: TextStyle(
+                  color: AppColors.myColor,
+                ),
+              ),
             ),
           ],
         );
@@ -60,7 +66,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue,
+        backgroundColor: AppColors.myColor,
         title: Row(
           children: [
             Padding(
@@ -76,7 +82,8 @@ class _HomePageState extends State<HomePage> {
               "Espace médecins",
               style: TextStyle(
                 fontSize: 18,
-                fontFamily: 'Poppins',
+                fontFamily: 'Georgia',
+                color: Colors.white,
               ),
             ),
           ],
@@ -87,7 +94,7 @@ class _HomePageState extends State<HomePage> {
             icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: () {
               AuthUtils.logout(context);
-            }, // Ajoutez votre fonction de déconnexion ici
+            },
           ),
         ],
       ),
@@ -100,9 +107,9 @@ class _HomePageState extends State<HomePage> {
               "Vistes du jour",
               style: TextStyle(
                 fontSize: 24,
-                fontFamily: 'Poppins',
+                fontFamily: 'Georgia',
                 fontWeight: FontWeight.bold,
-                color: Colors.blue,
+                color: AppColors.myColor,
               ),
             ),
             const SizedBox(height: 20),

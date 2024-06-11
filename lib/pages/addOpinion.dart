@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:doctor/service/opinion_api.dart';
 import 'package:intl/intl.dart';
-import 'package:doctor/service/patient_api.dart';
+import 'package:doctor/utils/constants.dart';
 import 'package:doctor/utils/utils.dart';
 import 'package:doctor/pages/opinion.dart';
 
@@ -30,7 +30,7 @@ class _AddOpinionPageState extends State<AddOpinionPage> {
   Future<void> fetchPatientInfo() async {
     if (widget.patientId != null) {
       try {
-        Map<String, dynamic>? result = await PatientApi.fetchPatientInfo(widget.patientId!);
+        Map<String, dynamic>? result = await AppUsersUtils.fetchPatientInfo(context, widget.patientId!);
         setState(() {
           patientInfo = result;
         });
@@ -47,13 +47,16 @@ class _AddOpinionPageState extends State<AddOpinionPage> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue,
+
+        backgroundColor: AppColors.myColor,
         title: Text(
           patientInfo != null
               ? 'Avis $currentDate\n${patientInfo!["firstName"]} ${patientInfo!["lastName"]}'
               : 'Avis patient',
-          style: const TextStyle(color: Colors.white),
+
+          style: const TextStyle(color: Colors.white, fontFamily: 'Georgia'),
         ),
+        iconTheme: IconThemeData(color: Colors.white),
         actions: [
           IconButton(
             icon: Icon(Icons.logout, color: Colors.white),
@@ -70,40 +73,58 @@ class _AddOpinionPageState extends State<AddOpinionPage> {
           children: [
             TextField(
               controller: _titleController,
-              decoration: InputDecoration(labelText: 'Votre avis',
+
+              decoration: InputDecoration(
+                labelText: 'Votre avis',
+                hintText: 'Entrez votre avis',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10.0), // Bordure arrondie
-                  borderSide: BorderSide(color: Colors.blue), // Couleur de la bordure
+                  borderSide: BorderSide(
+                    color: _titleController.text.isEmpty ? Colors.red : AppColors.myColor,
+                  ), // Couleur de la bordure
                 ),
+                labelStyle: TextStyle(fontSize: 18, color: AppColors.myColor),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10.0), // Bordure arrondie
-                  borderSide: BorderSide(color: Colors.blue, width: 2.0), // Couleur de la bordure lorsque le champ est en focus
+                  borderSide: BorderSide(color: AppColors.myColor, width: 2.0), // Couleur de la bordure lorsque le champ est en focus
                 ),),
 
             ),
             SizedBox(height: 16.0),
             TextField(
               controller: _descriptionController,
+
+
               decoration: InputDecoration(labelText: 'Description',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10.0), // Bordure arrondie
-                  borderSide: BorderSide(color: Colors.blue), // Couleur de la bordure
+                  borderSide: BorderSide(color: AppColors.myColor), // Couleur de la bordure
                 ),
+                labelStyle: TextStyle(fontSize: 18, color: AppColors.myColor),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10.0), // Bordure arrondie
-                  borderSide: BorderSide(color: Colors.blue, width: 2.0), // Couleur de la bordure lorsque le champ est en focus
+                  borderSide: BorderSide(color: AppColors.myColor, width: 2.0), // Couleur de la bordure lorsque le champ est en focus
                 ),),
               maxLines: 5,
             ),
             SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: _isLoading ? null : _submitOpinion,
+
+              autofocus: true, // Mettre le focus automatiquement sur ce bouton
               style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+                backgroundColor: MaterialStateProperty.all<Color>(AppColors.myColor),
                 foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
               ),
-              child: _isLoading ? CircularProgressIndicator() : Text('Ajouter', style: TextStyle(fontSize: 18)),
+              child: _isLoading
+                  ? CircularProgressIndicator()
+                  : Semantics(
+                label: 'Ajouter un avis', // Étiquette d'accessibilité
+                child: Text('Ajouter', style: TextStyle(fontSize: 18)),
+              ),
+
             ),
+
           ],
         ),
       ),
@@ -118,22 +139,17 @@ class _AddOpinionPageState extends State<AddOpinionPage> {
     try {
       // Récupérer la date du jour
       final currentDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
-      String? medecinId = await AuthUtils().checkMedecinID();
 
-      // Normaliser les données du formulaire
-      final normalizedTitle = AppDateUtils().normalizeString(_titleController.text);
-      final normalizedDescription = AppDateUtils().normalizeString(_descriptionController.text);
-      if (normalizedTitle.isEmpty || normalizedDescription.isEmpty) {
-        SnackbarUtils.showMessage(context, 'Le titre et la description sont obligatoires.');
-        setState(() {
-          _isLoading = false;
-        });
-        return;
-      }
+      String? medecinId = await AppUsersUtils().checkMedecinID();
       // Créer un objet Opinion à partir des données du formulaire
+      // Valider les entrées
+      String cleanTitle = AppUsersUtils().sanitizeInput(_titleController.text);
+      String cleanDescription = AppUsersUtils().sanitizeInput(_descriptionController.text);
+      // Vérifier si le titre et la description ne sont pas vides
+      if (cleanTitle.isNotEmpty && cleanDescription.isNotEmpty) {
       final opinion = {
-        'title': normalizedTitle,
-        'description': normalizedDescription,
+        'title': cleanTitle,
+        'description': cleanDescription,
         'patient_id': widget.patientId,
         'medecin_id': medecinId,
         'date': currentDate,
@@ -141,7 +157,10 @@ class _AddOpinionPageState extends State<AddOpinionPage> {
 
       // Appeler la méthode pour ajouter l'avis
       await OpinionApi.addOpinion(context, opinion);
+
+// Naviguer vers PrescriptionPage après l'enregistrement réussi avec widget.patientId
       // Naviguer vers PrescriptionPage après l'enregistrement réussi avec widget.patientId
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -149,6 +168,10 @@ class _AddOpinionPageState extends State<AddOpinionPage> {
         ),
       );
 
+      } else {
+        // Afficher un message push indiquant que le titre et la description sont obligatoires
+        SnackbarUtils.showMessage(context, 'Le titre et la description sont obligatoires');
+      }
     } catch (e) {
       // Gérer les erreurs en cas d'échec de l'ajout de l'avis
       print('Error adding opinion: $e');

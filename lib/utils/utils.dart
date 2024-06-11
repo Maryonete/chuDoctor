@@ -1,7 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:doctor/pages/login.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // Importer la bibliothèque shared_preferences
+
+import 'package:doctor/service/patient_api.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
+
+
+/// ----------------------------------------------------------------------------
+///
+///
+///
+///
+/// ----------------------------------------------------------------------------
 
 class AuthUtils {
 
@@ -11,7 +21,7 @@ class AuthUtils {
 
   // Sauvegarde les informations d'identification de l'utilisateur
   static Future<void> saveCredentials(String email, String password) async {
-    print('[saveCredentials]');
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString(_emailKey, email);
     prefs.setString(_passwordKey, password);
@@ -29,26 +39,73 @@ class AuthUtils {
   // Efface les informations d'identification de l'utilisateur
   static Future<void> clearCredentials() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    print("clearCredential: " + prefs.get('rememberMe').toString());
-    if(prefs.get('rememberMe') == false) {
+
+    if (prefs.get('rememberMe') == false) {
       await prefs.remove(_emailKey);
       await prefs.remove(_passwordKey);
     }
   }
 
-  // déconnexion Appli mobile
+
+// Déconnexion de l'application mobile
   static void logout(BuildContext context) async {
-    print('Logout');
     await clearCredentials();
-    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
+    );
   }
+}
+
+
+/// ----------------------------------------------------------------------------
+///
+///
+///
+///
+/// ----------------------------------------------------------------------------
+class AppUsersUtils  {
+
   // retourne l'ID du medecin connecté
     Future<String?> checkMedecinID() async {
-      print('[utils checkMedecinID]');
       SharedPreferences localStorage = await SharedPreferences.getInstance();
       return localStorage.getString('user_id');
     }
+
+  /// Récupère les informations d'un patient à partir de son identifiant.
+  ///
+  /// [patientId]: L'identifiant du patient dont on souhaite récupérer les informations.
+  ///
+  /// Cette fonction envoie une requête à une fonction `getInfoPatient` pour obtenir
+  /// les informations du patient correspondant à l'identifiant spécifié.
+  /// Si la requête réussit, les informations du patient sont retournées.
+  /// Si une erreur se produit lors de la récupération des informations du patient,
+  /// un message d'erreur est imprimé dans la console et la fonction retourne `null`.
+  static Future<Map<String, dynamic>?> fetchPatientInfo(context, int patientId) async {
+    try {
+      // Appeler la fonction getInfoPatient pour obtenir les informations du patient
+      Map<String, dynamic>? result = await PatientApi.getInfoPatient(context, patientId);
+
+      return result;
+    } catch (e) {
+      // Gérer les erreurs lors de la récupération des informations du patient
+      //print('Error fetching patient info: $e');
+      return null;
+    }
+  }
+    // Fonction pour échapper les caractères spéciaux
+    String sanitizeInput(String input) {
+      // Fonction pour échapper les caractères spéciaux sauf : , . ! @ ? '
+      final RegExp pattern = RegExp(r"[^\w\s\d,:.!?@']");
+      return input.replaceAll(pattern, '');
+    }
 }
+/// ----------------------------------------------------------------------------
+///
+///
+///
+///
+/// ----------------------------------------------------------------------------
 
 class AppDateUtils  {
   String formatDate(String date) {
@@ -64,6 +121,13 @@ class AppDateUtils  {
 
 }
 
+
+/// ----------------------------------------------------------------------------
+///
+///
+///
+///
+/// ----------------------------------------------------------------------------
 
 class SnackbarUtils {
   static void showMessage(

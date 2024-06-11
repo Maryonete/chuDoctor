@@ -1,16 +1,28 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET"/>
+<<<<<<< HEAD
     <application
         android:label="SoigneMoi"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
+=======
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
+
+    <application
+        android:label="doctor"
+        android:name="${applicationName}"
+        android:icon="@mipmap/launcher_icon">
+        <activity
+            android:name="fr.developsolution.doctor.MainActivity"
+>>>>>>> d0db740 (add icon)
             android:exported="true"
             android:launchMode="singleTop"
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
+<<<<<<< HEAD
             android:usesCleartextTraffic="true"
             android:windowSoftInputMode="adjustResize"
             android:networkSecurityConfig="@xml/network_security_config">
@@ -22,15 +34,34 @@
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
               />
+=======
+            android:windowSoftInputMode="adjustResize">
+            <meta-data
+                android:name="io.flutter.embedding.android.NormalTheme"
+                android:resource="@style/NormalTheme"
+                />
+>>>>>>> d0db740 (add icon)
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+<<<<<<< HEAD
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
+=======
+>>>>>>> d0db740 (add icon)
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
+<<<<<<< HEAD
+=======
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.PROCESS_TEXT"/>
+            <data android:mimeType="text/plain"/>
+        </intent>
+    </queries>
+>>>>>>> d0db740 (add icon)
 </manifest>
