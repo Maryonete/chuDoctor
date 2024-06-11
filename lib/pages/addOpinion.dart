@@ -119,10 +119,21 @@ class _AddOpinionPageState extends State<AddOpinionPage> {
       // Récupérer la date du jour
       final currentDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
       String? medecinId = await AuthUtils().checkMedecinID();
+
+      // Normaliser les données du formulaire
+      final normalizedTitle = AppDateUtils().normalizeString(_titleController.text);
+      final normalizedDescription = AppDateUtils().normalizeString(_descriptionController.text);
+      if (normalizedTitle.isEmpty || normalizedDescription.isEmpty) {
+        SnackbarUtils.showMessage(context, 'Le titre et la description sont obligatoires.');
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
       // Créer un objet Opinion à partir des données du formulaire
       final opinion = {
-        'title': _titleController.text,
-        'description': _descriptionController.text,
+        'title': normalizedTitle,
+        'description': normalizedDescription,
         'patient_id': widget.patientId,
         'medecin_id': medecinId,
         'date': currentDate,
@@ -130,7 +141,7 @@ class _AddOpinionPageState extends State<AddOpinionPage> {
 
       // Appeler la méthode pour ajouter l'avis
       await OpinionApi.addOpinion(context, opinion);
-// Naviguer vers PrescriptionPage après l'enregistrement réussi avec widget.patientId
+      // Naviguer vers PrescriptionPage après l'enregistrement réussi avec widget.patientId
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(

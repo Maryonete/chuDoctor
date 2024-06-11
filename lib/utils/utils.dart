@@ -57,6 +57,11 @@ class AppDateUtils  {
     return DateFormat('dd-MM-yyyy').format(dateTime);
 
   }
+  // Fonction pour normaliser les caractères spéciaux
+  String normalizeString(String input) {
+    return input.replaceAll(RegExp(r'[^\w\s]+'), '');
+  }
+
 }
 
 
